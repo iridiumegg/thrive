@@ -1,0 +1,34 @@
+[
+  {
+    "id": "hypothermia",
+    "name": "Hypothermia",
+    "description": "Your core temperature has fallen dangerously low. Get warm and stay warm.",
+    "trigger": { "stat": "warmth", "below": 0.5, "sustained_minutes": 30 },
+    "effects": { "condition_drain_per_hour": 6.0, "speed_multiplier": 0.85 },
+    "cure": { "stat": "warmth", "above": 50.0, "sustained_minutes": 60 }
+  },
+  {
+    "id": "starvation",
+    "name": "Starvation",
+    "description": "Your body is consuming itself. Eat something substantial.",
+    "trigger": { "stat": "calories", "below": 0.5, "sustained_minutes": 120 },
+    "effects": { "condition_drain_per_hour": 2.0, "speed_multiplier": 0.9 },
+    "cure": { "stat": "calories", "above": 500.0, "sustained_minutes": 0 }
+  },
+  {
+    "id": "dehydration",
+    "name": "Dehydration",
+    "description": "Severe lack of water. Drink as soon as you can.",
+    "trigger": { "stat": "hydration", "below": 0.5, "sustained_minutes": 60 },
+    "effects": { "condition_drain_per_hour": 3.0, "speed_multiplier": 0.9 },
+    "cure": { "stat": "hydration", "above": 25.0, "sustained_minutes": 0 }
+  },
+  {
+    "id": "exhaustion",
+    "name": "Exhaustion",
+    "description": "You can barely keep your eyes open. Sleep, or collapse.",
+    "trigger": { "stat": "energy", "below": 0.5, "sustained_minutes": 30 },
+    "effects": { "condition_drain_per_hour": 0.0, "speed_multiplier": 0.75 },
+    "cure": { "stat": "energy", "above": 50.0, "sustained_minutes": 0 }
+  }
+]

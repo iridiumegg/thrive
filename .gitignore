@@ -1,0 +1,7 @@
+# Godot cache / imported asset artifacts
+.godot/
+*.import
+
+# Exports
+/build/
+export_presets.cfg

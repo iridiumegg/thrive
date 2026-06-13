@@ -1,0 +1,46 @@
+{
+  "world_seed": 1337,
+  "time": {
+    "day_length_real_minutes": 20.0,
+    "minutes_per_day": 1440,
+    "start_hour": 8,
+    "days_per_season": 14,
+    "seasons": ["Thaw", "Greentide", "Dimming", "Deepfrost"]
+  },
+  "player": {
+    "walk_speed": 90.0,
+    "starting_insulation_c": 8.0
+  },
+  "vitals": {
+    "calories_max": 2500.0,
+    "calories_drain_per_hour": 85.0,
+    "calories_cold_multiplier": 1.25,
+    "hydration_max": 100.0,
+    "hydration_drain_per_hour": 3.5,
+    "energy_max": 100.0,
+    "energy_drain_per_hour_awake": 5.0,
+    "energy_regen_per_hour_asleep": 12.0,
+    "warmth_max": 100.0,
+    "warmth_drain_per_degree_deficit_per_hour": 0.5,
+    "warmth_regen_per_hour_when_warm": 20.0,
+    "condition_max": 100.0,
+    "condition_regen_per_hour": 1.5,
+    "condition_drain_per_need_critical": 4.0,
+    "adequate_need_fraction": 0.3,
+    "rested_energy_fraction": 0.6,
+    "activity_multiplier_idle": 1.0,
+    "activity_multiplier_moving": 1.5,
+    "sleep_metabolism_multiplier": 0.6
+  },
+  "climate": {
+    "season_base_c": [4.0, 14.0, 2.0, -12.0],
+    "diurnal_amplitude_c": 6.0,
+    "comfort_c": 10.0,
+    "wetness_penalty_c": 10.0,
+    "campfire_bonus_c": 18.0
+  },
+  "debug": {
+    "eat_kcal": 600.0,
+    "drink_pct": 35.0
+  }
+}
