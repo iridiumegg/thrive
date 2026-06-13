@@ -84,6 +84,11 @@
     "wetness_penalty_c": 10.0,
     "campfire_bonus_c": 18.0
   },
+  "accessibility": {
+    "master_volume": 0.8,
+    "ui_text_scale": 1.0,
+    "colorblind_safe_cues": true
+  },
   "debug": {
     "eat_kcal": 600.0,
     "drink_pct": 35.0

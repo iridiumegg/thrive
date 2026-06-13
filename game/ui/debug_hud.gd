@@ -9,7 +9,7 @@ func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_label = Label.new()
 	_label.position = Vector2(8, 8)
-	_label.add_theme_font_size_override("font_size", 13)
+	_label.add_theme_font_size_override("font_size", UiScale.font_size(13))
 	_label.add_theme_color_override("font_color", Color(0.9, 0.93, 0.95))
 	_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
 	_label.add_theme_constant_override("shadow_offset_x", 1)

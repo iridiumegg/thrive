@@ -58,7 +58,7 @@ func _build_bar_row(stat: String) -> HBoxContainer:
 	var name_label := Label.new()
 	name_label.text = BAR_DEFS[stat][0]
 	name_label.custom_minimum_size = Vector2(72, 0)
-	name_label.add_theme_font_size_override("font_size", 12)
+	name_label.add_theme_font_size_override("font_size", UiScale.font_size(12))
 	name_label.add_theme_color_override("font_color", Color(0.9, 0.93, 0.95))
 	row.add_child(name_label)
 
@@ -83,7 +83,7 @@ func _build_bar_row(stat: String) -> HBoxContainer:
 
 func _make_text_label(color: Color) -> Label:
 	var label := Label.new()
-	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_font_size_override("font_size", UiScale.font_size(12))
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
 	label.add_theme_constant_override("shadow_offset_x", 1)

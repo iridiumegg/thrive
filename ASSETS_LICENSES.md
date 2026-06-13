@@ -16,5 +16,8 @@ Acceptable licenses: CC0, CC-BY (with attribution), or original work.
 | Structure sprites | Generated procedurally at runtime (`game/entities/building_entity.gd`) | Original (this project) | — |
 | NPC sprites | Generated procedurally at runtime (`game/entities/npc_entity.gd`) | Original (this project) | — |
 
-No external art, audio, or font assets are currently used. UI text rendering
-uses Godot's built-in default theme font.
+| Sound effects & wind bed | Synthesised at runtime (`game/core/audio_service.gd`) | Original (this project) | — |
+
+No external art, audio, or font assets are currently used. All sound is
+generated as PCM buffers at runtime; UI text rendering uses Godot's built-in
+default theme font.

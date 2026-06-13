@@ -146,7 +146,13 @@ Afflictions (hypothermia, starvation, dehydration, exhaustion) are defined in
       lore codex, clock/weather, placed structures (+ chest contents), node
       depletion/respawn, traps, and ground items. Autosave on day change +
       manual save/load; migration-ready schema.
-- [ ] M13 — Polish
+- [x] **M13 — Polish:** fully procedural audio (cues for pickup/craft/level-up/
+      quest/build/warning plus a wind bed that swells with cold and storms, all
+      synthesised at runtime — no audio files); a vital-warning cue that fires
+      the moment a need crosses critical; accessibility config (master volume,
+      UI text scale wired into HUD readouts, colorblind-safe meter cues that
+      already pair color with icon + label + position).
+- [ ] M14 — Threats/combat
 - [ ] M10 — NPCs & dialogue
 - [ ] M11 — Story
 - [ ] M12 — Save/load

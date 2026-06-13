@@ -25,6 +25,7 @@ LoreDb="*res://game/core/lore_db.gd"
 SaveService="*res://game/core/save_service.gd"
 Sim="*res://game/core/simulation.gd"
 Env="*res://game/core/env.gd"
+AudioService="*res://game/core/audio_service.gd"
 
 [display]
 
