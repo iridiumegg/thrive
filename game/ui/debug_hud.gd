@@ -31,7 +31,7 @@ func _process(_delta: float) -> void:
 			"yes" if vitals.asleep else "no"])
 	lines.append("Speed x%.0f   FPS %d" % [Sim.time_scale, Engine.get_frames_per_second()])
 	lines.append("")
-	lines.append("[WASD] move  [E] interact  [Q] set trap  [Tab] pack")
+	lines.append("[WASD] move  [E] interact  [Q] set trap  [Tab] pack  [C] craft")
 	lines.append("[F1] eat  [F2] drink  [F3] sleep  [F4] campfire  [F5] time speed")
 	_label.text = "\n".join(lines)
 

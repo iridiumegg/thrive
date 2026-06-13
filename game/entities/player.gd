@@ -11,6 +11,7 @@ extends CharacterBody2D
 var vitals: VitalsComponent
 var inventory: InventoryComponent
 var gathering: GatheringComponent
+var crafting: CraftingComponent
 
 func _physics_process(_delta: float) -> void:
 	if vitals != null and (not vitals.state.alive or vitals.asleep):

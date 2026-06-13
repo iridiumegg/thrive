@@ -16,7 +16,8 @@
     { "item": "flint_stone", "count": 6, "qty_min": 1, "qty_max": 1 },
     { "item": "plant_fiber", "count": 6, "qty_min": 1, "qty_max": 3 },
     { "item": "waterskin_full", "count": 3, "qty_min": 1, "qty_max": 1 },
-    { "item": "stone_pickaxe", "count": 1, "qty_min": 1, "qty_max": 1 }
+    { "item": "stone_pickaxe", "count": 1, "qty_min": 1, "qty_max": 1 },
+    { "item": "garment_pattern", "count": 1, "qty_min": 1, "qty_max": 1 }
   ],
   "nodes": [
     { "node": "tree", "count": 26 },

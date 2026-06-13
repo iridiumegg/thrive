@@ -20,6 +20,9 @@ var insulation_c: float       # warmth contribution when equipped (clothing)
 var durability_max: int       # 0 if the item has no durability
 var tool_tag: String          # "" if not a tool; else axe/pickaxe/... (gathering gate)
 var tier: int                 # tool quality tier; gates which nodes it can work
+var teaches_recipe: String    # "" unless this item is a blueprint that unlocks a recipe
+var repair_with: Dictionary   # {} or {item, qty} material to fully repair this item
+var salvage: Array            # [] or [{item, qty}] materials returned when salvaged
 
 static func from_dict(d: Dictionary) -> ItemDef:
 	var def := ItemDef.new()
@@ -37,6 +40,9 @@ static func from_dict(d: Dictionary) -> ItemDef:
 	def.durability_max = int(d.get("durability_max", 0))
 	def.tool_tag = String(d.get("tool_tag", ""))
 	def.tier = int(d.get("tier", 0))
+	def.teaches_recipe = String(d.get("teaches_recipe", ""))
+	def.repair_with = d.get("repair_with", {})
+	def.salvage = d.get("salvage", [])
 	return def
 
 func is_edible() -> bool:

@@ -1,0 +1,33 @@
+[
+  {
+    "id": "hand",
+    "name": "By Hand",
+    "color": [150, 150, 150]
+  },
+  {
+    "id": "workbench",
+    "name": "Workbench",
+    "color": [150, 120, 78],
+    "tier": 1
+  },
+  {
+    "id": "campfire",
+    "name": "Campfire",
+    "color": [196, 120, 60],
+    "tier": 1,
+    "heat_source": true
+  },
+  {
+    "id": "forge",
+    "name": "Forge",
+    "color": [150, 90, 70],
+    "tier": 2,
+    "heat_source": true
+  },
+  {
+    "id": "tailoring_bench",
+    "name": "Tailoring Bench",
+    "color": [110, 120, 150],
+    "tier": 1
+  }
+]

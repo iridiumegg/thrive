@@ -48,3 +48,18 @@ signal interaction_prompt(text: String)
 
 ## Emitted when the player successfully harvests a node (for skills/quests).
 signal node_harvested(node_id: String, loot: Dictionary)
+
+## --- Crafting (Milestone 5) ---
+
+## Emitted when the craft queue changes (job started, completed, cancelled).
+signal crafting_queue_changed(queue: Array)
+
+## Emitted on each completed craft (recipe_id + the quality it was made at).
+signal recipe_crafted(recipe_id: String, quality: String)
+
+## Emitted when a recipe is newly learned (e.g. from a blueprint).
+signal recipe_learned(recipe_id: String)
+
+## Emitted when the set of in-range crafting stations changes. Payload is the
+## list of available station ids (always includes "hand").
+signal stations_changed(station_ids: Array)

@@ -21,7 +21,8 @@ godot --path .
 | E / Space | Interact: harvest a node, drink at a spring, work a trap |
 | Q | Deploy a snare trap (consumes a trap kit + bait) |
 | Tab / I | Open / close the inventory & equipment screen |
-| Left-click slot | Use food / equip gear |
+| C | Open / close the crafting screen |
+| Left-click slot | Use food / equip gear / read a blueprint |
 | Right-click slot | Drop one |
 | F1 | Eat (debug quick-restore) |
 | F2 | Drink (debug quick-restore) |
@@ -69,7 +70,7 @@ godot --headless --path . -- --smoke-test
   /world       # main scene, terrain generation
   /ui          # debug HUD, vitals HUD
   /data        # balance, afflictions, items, world_spawns, resource_nodes,
-               #   loot_tables, traps (all tunables / content live here)
+               #   loot_tables, traps, recipes, stations (tunables + content)
   /assets      # (empty — current art is generated in code; see ASSETS_LICENSES.md)
 /tests         # headless unit tests for the simulation layer
 ```
@@ -98,7 +99,12 @@ Afflictions (hypothermia, starvation, dehydration, exhaustion) are defined in
       tree); weighted seed-aware loot tables; passive baited trapping
       subsystem; springs for water. (Open knob resolved: trapping included;
       fishing/hunting deferred.)
-- [ ] M5 — Crafting
+- [x] **M5 — Crafting:** data-driven recipe engine with a timed job queue
+      (passive processing over sim time); hand-crafting + stations (workbench,
+      campfire, forge, tailoring bench) via proximity; multi-step processing
+      chains (ore → ingot → iron tool); cooking tree; blueprint recipe
+      discovery; repair & salvage; full crafting UI. (Quality tiers:
+      schema-ready, shipped off — switches on in M8.)
 - [ ] M6 — World depth (seasons/weather/biomes; handcrafted core map)
 - [ ] M7 — Building
 - [ ] M8 — Skills & progression

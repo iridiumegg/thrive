@@ -1,0 +1,151 @@
+[
+  {
+    "id": "craft_cord",
+    "display_name": "Twist Cordage",
+    "category": "Materials",
+    "station": "hand",
+    "inputs": [ { "item": "plant_fiber", "qty": 2 } ],
+    "outputs": [ { "item": "cord", "qty": 1 } ],
+    "craft_time": 2,
+    "xp": 1,
+    "unlock": { "type": "default" }
+  },
+  {
+    "id": "craft_stone_axe",
+    "display_name": "Lash a Stone Axe",
+    "category": "Tools",
+    "station": "hand",
+    "inputs": [
+      { "item": "branch", "qty": 1 },
+      { "item": "flint_stone", "qty": 1 },
+      { "item": "cord", "qty": 1 }
+    ],
+    "outputs": [ { "item": "stone_axe", "qty": 1 } ],
+    "craft_time": 6,
+    "xp": 3,
+    "unlock": { "type": "default" }
+  },
+  {
+    "id": "craft_stone_pickaxe",
+    "display_name": "Lash a Stone Pickaxe",
+    "category": "Tools",
+    "station": "hand",
+    "inputs": [
+      { "item": "branch", "qty": 1 },
+      { "item": "stone", "qty": 1 },
+      { "item": "cord", "qty": 1 }
+    ],
+    "outputs": [ { "item": "stone_pickaxe", "qty": 1 } ],
+    "craft_time": 6,
+    "xp": 3,
+    "unlock": { "type": "default" }
+  },
+  {
+    "id": "craft_snare_trap",
+    "display_name": "Build a Snare Trap",
+    "category": "Tools",
+    "station": "hand",
+    "inputs": [
+      { "item": "branch", "qty": 1 },
+      { "item": "cord", "qty": 2 }
+    ],
+    "outputs": [ { "item": "snare_trap", "qty": 1 } ],
+    "craft_time": 5,
+    "xp": 2,
+    "unlock": { "type": "default" }
+  },
+  {
+    "id": "craft_wood_plank",
+    "display_name": "Split Planks",
+    "category": "Materials",
+    "station": "workbench",
+    "inputs": [ { "item": "wood_log", "qty": 1 } ],
+    "outputs": [ { "item": "wood_plank", "qty": 2 } ],
+    "craft_time": 4,
+    "xp": 2,
+    "unlock": { "type": "default" }
+  },
+  {
+    "id": "smelt_iron_ingot",
+    "display_name": "Smelt Iron Ingot",
+    "category": "Smithing",
+    "station": "forge",
+    "inputs": [
+      { "item": "iron_ore", "qty": 2 },
+      { "item": "branch", "qty": 1 }
+    ],
+    "outputs": [ { "item": "iron_ingot", "qty": 1 } ],
+    "craft_time": 20,
+    "xp": 8,
+    "unlock": { "type": "default" }
+  },
+  {
+    "id": "craft_iron_axe",
+    "display_name": "Forge an Iron Axe",
+    "category": "Smithing",
+    "station": "forge",
+    "inputs": [
+      { "item": "iron_ingot", "qty": 2 },
+      { "item": "branch", "qty": 1 },
+      { "item": "cord", "qty": 1 }
+    ],
+    "outputs": [ { "item": "iron_axe", "qty": 1 } ],
+    "craft_time": 24,
+    "xp": 10,
+    "unlock": { "type": "default" }
+  },
+  {
+    "id": "craft_iron_pickaxe",
+    "display_name": "Forge an Iron Pickaxe",
+    "category": "Smithing",
+    "station": "forge",
+    "inputs": [
+      { "item": "iron_ingot", "qty": 2 },
+      { "item": "branch", "qty": 1 },
+      { "item": "cord", "qty": 1 }
+    ],
+    "outputs": [ { "item": "iron_pickaxe", "qty": 1 } ],
+    "craft_time": 24,
+    "xp": 10,
+    "unlock": { "type": "default" }
+  },
+  {
+    "id": "cook_meat",
+    "display_name": "Cook Meat",
+    "category": "Cooking",
+    "station": "campfire",
+    "inputs": [ { "item": "raw_meat", "qty": 1 } ],
+    "outputs": [ { "item": "cooked_meat", "qty": 1 } ],
+    "craft_time": 5,
+    "xp": 2,
+    "unlock": { "type": "default" }
+  },
+  {
+    "id": "cook_trail_ration",
+    "display_name": "Press Trail Rations",
+    "category": "Cooking",
+    "station": "campfire",
+    "inputs": [
+      { "item": "cooked_meat", "qty": 1 },
+      { "item": "wild_berries", "qty": 3 }
+    ],
+    "outputs": [ { "item": "trail_ration", "qty": 1 } ],
+    "craft_time": 8,
+    "xp": 4,
+    "unlock": { "type": "default" }
+  },
+  {
+    "id": "craft_hide_cloak",
+    "display_name": "Stitch a Hide Cloak",
+    "category": "Tailoring",
+    "station": "tailoring_bench",
+    "inputs": [
+      { "item": "small_hide", "qty": 3 },
+      { "item": "cord", "qty": 2 }
+    ],
+    "outputs": [ { "item": "hide_cloak", "qty": 1 } ],
+    "craft_time": 18,
+    "xp": 9,
+    "unlock": { "type": "blueprint" }
+  }
+]

@@ -17,6 +17,7 @@ var equipment: Equipment
 var tool_durability: Dictionary = {}
 
 var _vitals: VitalsComponent
+var crafting: CraftingComponent   # wired by the player after both components exist
 
 func setup(vitals: VitalsComponent) -> void:
 	_vitals = vitals
@@ -47,10 +48,23 @@ func use_slot(index: int) -> void:
 	if stack == null:
 		return
 	var def := ItemDb.get_def(stack.item_id)
-	if def.is_edible():
+	if def.teaches_recipe != "":
+		_read_blueprint(index, def)
+	elif def.is_edible():
 		_consume(index, def)
 	elif def.is_equippable():
 		_equip_from_slot(index, def)
+
+## Reading a blueprint learns its recipe and consumes the page (once).
+func _read_blueprint(index: int, def: ItemDef) -> void:
+	if crafting == null:
+		return
+	if crafting.learn_recipe(def.teaches_recipe):
+		inventory.remove_slot(index, 1)
+		EventBus.notice.emit("Learned: %s" % CraftDb.recipes[def.teaches_recipe]["display_name"])
+		EventBus.inventory_changed.emit(inventory)
+	else:
+		EventBus.notice.emit("You already know this pattern")
 
 func _consume(index: int, def: ItemDef) -> void:
 	if _vitals != null:

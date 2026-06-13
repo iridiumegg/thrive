@@ -10,12 +10,15 @@ const PlayerScript := preload("res://game/entities/player.gd")
 const VitalsComponentScript := preload("res://game/systems/vitals/vitals_component.gd")
 const InventoryComponentScript := preload("res://game/systems/inventory/inventory_component.gd")
 const GatheringComponentScript := preload("res://game/systems/gathering/gathering_component.gd")
+const CraftingComponentScript := preload("res://game/systems/crafting/crafting_component.gd")
 const PickupScript := preload("res://game/entities/pickup.gd")
 const ResourceNodeEntityScript := preload("res://game/entities/resource_node_entity.gd")
 const TrapEntityScript := preload("res://game/entities/trap_entity.gd")
+const StationEntityScript := preload("res://game/entities/station_entity.gd")
 const DebugHudScript := preload("res://game/ui/debug_hud.gd")
 const VitalsHudScript := preload("res://game/ui/vitals_hud.gd")
 const InventoryScreenScript := preload("res://game/ui/inventory_screen.gd")
+const CraftingScreenScript := preload("res://game/ui/crafting_screen.gd")
 
 const SPAWNS_PATH := "res://game/data/world_spawns.json"
 
@@ -39,6 +42,7 @@ var player: Player
 var vitals: VitalsComponent
 var inventory: InventoryComponent
 var gathering: GatheringComponent
+var crafting: CraftingComponent
 var death_overlay: CenterContainer
 var _terrain: TileMapLayer
 var _pickups: Node2D
@@ -173,6 +177,13 @@ func _spawn_player() -> void:
 	gathering.setup(player, vitals, inventory)
 	player.gathering = gathering
 
+	crafting = CraftingComponentScript.new()
+	crafting.name = "Crafting"
+	crafting.setup(inventory)
+	player.add_child(crafting)
+	player.crafting = crafting
+	inventory.crafting = crafting
+
 	add_child(player)
 
 ## Placeholder survivor sprite: a hooded figure, drawn in code.
@@ -210,6 +221,7 @@ func _spawn_world_items() -> void:
 
 	var spawns: Dictionary = Balance.load_json(SPAWNS_PATH)
 	_spawn_nodes(spawns)
+	_spawn_stations()
 	var rng := SeededRng.new(int(Balance.data["world_seed"])).stream("world_items")
 
 	# Starter kit: a loose ring of items just around the outpost (origin).
@@ -225,6 +237,19 @@ func _spawn_world_items() -> void:
 		for _i in int(entry["count"]):
 			var qty := rng.randi_range(int(entry["qty_min"]), int(entry["qty_max"]))
 			_add_pickup(String(entry["item"]), qty, _random_land_position(rng))
+
+## The outpost's surviving stations, arranged just south of spawn. (Player-built
+## and player-placed stations arrive with the building system in M7.)
+const STATION_LAYOUT := [
+	["workbench", Vector2(-40, 60)],
+	["campfire", Vector2(0, 70)],
+	["forge", Vector2(40, 60)],
+	["tailoring_bench", Vector2(80, 70)],
+]
+
+func _spawn_stations() -> void:
+	for entry in STATION_LAYOUT:
+		_nodes.add_child(StationEntityScript.create(entry[0], entry[1]))
 
 ## Terrain name -> atlas column (matches _build_terrain).
 const TERRAIN_INDEX := {"grass": 0, "dirt": 1, "rock": 2, "water": 3}
@@ -321,6 +346,11 @@ func _build_hud() -> void:
 	inventory_screen.name = "InventoryScreen"
 	hud.add_child(inventory_screen)
 	inventory_screen.bind(inventory)
+
+	var crafting_screen: Control = CraftingScreenScript.new()
+	crafting_screen.name = "CraftingScreen"
+	hud.add_child(crafting_screen)
+	crafting_screen.bind(crafting)
 
 	_build_toast(hud)
 	_build_prompt(hud)
@@ -452,6 +482,52 @@ func _smoke_test_inventory() -> void:
 		minutes_waited += 60
 	print("[smoke] trap resolved after %d min -> %s" % [
 			minutes_waited, "caught " + str(trap.collect()) if trap.is_caught() else "empty"])
+
+	# --- M5: crafting chain, station gating, blueprint, repair/salvage ---
+	# Hand-craft cordage from fiber (no station needed).
+	inventory.pickup("plant_fiber", 4)
+	assert(crafting.craft("craft_cord"), "cord should be craftable by hand")
+	crafting._on_sim_minute(10)  # advance the craft via the component's deliver path
+	print("[smoke] hand-crafted cord -> have %d cord" % inventory.inventory.count("cord"))
+	assert(inventory.inventory.count("cord") >= 1, "completed craft must deliver outputs")
+
+	# Forge recipe must be gated until a forge is in range.
+	inventory.pickup("iron_ore", 4)
+	inventory.pickup("branch", 4)
+	var gated := crafting.can_craft("smelt_iron_ingot")
+	print("[smoke] smelt gated without forge: ok=%s (%s)" % [gated["ok"], gated["reason"]])
+	assert(not gated["ok"], "smelting must require the forge station")
+	crafting.add_station("forge")
+	assert(crafting.craft("smelt_iron_ingot"), "smelting works with a forge in range")
+	crafting._on_sim_minute(100)
+	print("[smoke] smelted -> have %d iron_ingot" % inventory.inventory.count("iron_ingot"))
+	assert(inventory.inventory.count("iron_ingot") >= 1, "smelting must deliver an ingot")
+
+	# Blueprint learning: hide cloak is locked until the pattern is read.
+	assert(not crafting.knows("craft_hide_cloak"), "cloak locked initially")
+	inventory.pickup("garment_pattern", 1)
+	for i in inventory.inventory.slots.size():
+		var st: Inventory.Stack = inventory.inventory.slots[i]
+		if st != null and st.item_id == "garment_pattern":
+			inventory.use_slot(i)
+			break
+	print("[smoke] read pattern -> knows hide cloak: %s" % crafting.knows("craft_hide_cloak"))
+	assert(crafting.knows("craft_hide_cloak"), "reading the blueprint learns the recipe")
+
+	# Repair and salvage.
+	inventory.pickup("stone_pickaxe", 1)
+	for i in inventory.inventory.slots.size():
+		var st: Inventory.Stack = inventory.inventory.slots[i]
+		if st != null and st.item_id == "stone_pickaxe":
+			inventory.use_slot(i)  # equip it
+			break
+	inventory.damage_equipped_tool(20)
+	var worn := inventory.current_durability("stone_pickaxe")
+	inventory.pickup("stone", 2)
+	crafting.repair_equipped_tool()
+	print("[smoke] pickaxe durability %d -> %d after repair" % [
+			worn, inventory.current_durability("stone_pickaxe")])
+	assert(inventory.current_durability("stone_pickaxe") > worn, "repair restores durability")
 
 func _on_smoke_minute(minutes: int) -> void:
 	_smoke_minutes += minutes
