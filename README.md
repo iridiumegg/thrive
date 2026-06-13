@@ -105,7 +105,11 @@ Afflictions (hypothermia, starvation, dehydration, exhaustion) are defined in
       chains (ore → ingot → iron tool); cooking tree; blueprint recipe
       discovery; repair & salvage; full crafting UI. (Quality tiers:
       schema-ready, shipped off — switches on in M8.)
-- [ ] M6 — World depth (seasons/weather/biomes; handcrafted core map)
+- [x] **M6 — World depth:** seeded weather state machine (clear→cloudy→
+      rain/snow→storm) feeding wind chill + wetness into the warmth model,
+      with rain/snow chosen by temperature and season-weighted odds; biome map
+      (handcrafted outpost core + seeded surrounding regions) shifting ambient
+      temperature and gating resource spawns; day/night + weather lighting.
 - [ ] M7 — Building
 - [ ] M8 — Skills & progression
 - [ ] M9 — Quests

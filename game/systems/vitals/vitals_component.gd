@@ -53,27 +53,32 @@ func _build_env() -> Dictionary:
 	var moving := not asleep and _player != null and _player.velocity.length_squared() > 1.0
 	var insulation := 0.0
 	var encumbrance_activity := 1.0
+	var position := Vector2.ZERO
 	if _player != null:
 		insulation = _player.insulation_c()
 		encumbrance_activity = float(_player.encumbrance()["activity_mult"])
+		position = _player.global_position
 	var base_activity := float(vitals_cfg["activity_multiplier_moving"]) if moving \
 			else float(vitals_cfg["activity_multiplier_idle"])
+	# Weather adds wind chill and wetness; shelter (indoors) cancels both.
+	var w := Env.weather_effects()
+	var sheltered := campfire_on  # near a heat source counts as sheltered for now
 	return {
 		"ambient_c": ambient_c(),
 		"insulation_c": insulation,
 		"heat_source_c": float(climate["campfire_bonus_c"]) if campfire_on else 0.0,
-		"wind_chill_c": 0.0,
-		"wetness": 0.0,
+		"wind_chill_c": 0.0 if sheltered else float(w["wind_chill_c"]),
+		"wetness": 0.0 if sheltered else float(w["wetness"]),
 		"activity": base_activity * encumbrance_activity,
 		"asleep": asleep,
 	}
 
+## Ambient temperature where the player is standing: season + time of day +
+## biome + weather (via the Env service).
 func ambient_c() -> float:
-	return TemperatureModel.ambient_c(
-		Sim.clock.season_index(),
-		Sim.clock.minute_of_day(),
-		Balance.data["climate"],
-		int(Balance.data["time"]["minutes_per_day"]))
+	if _player != null:
+		return Env.ambient_c_at(_player.global_position)
+	return Env.base_ambient_c()
 
 ## --- Debug actions (stand-ins until food/water items exist) ---
 

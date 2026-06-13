@@ -63,3 +63,11 @@ signal recipe_learned(recipe_id: String)
 ## Emitted when the set of in-range crafting stations changes. Payload is the
 ## list of available station ids (always includes "hand").
 signal stations_changed(station_ids: Array)
+
+## --- World depth (Milestone 6) ---
+
+## Emitted when the weather state changes (id + display name).
+signal weather_changed(state: String, display_name: String)
+
+## Emitted when the player crosses into a different biome (biome id + name).
+signal biome_entered(biome_id: String, display_name: String)

@@ -47,6 +47,9 @@ var death_overlay: CenterContainer
 var _terrain: TileMapLayer
 var _pickups: Node2D
 var _nodes: Node2D
+var _canvas_modulate: CanvasModulate
+var _current_biome := ""
+var _biome_check_accum := 0.0
 var _trap_counter := 0
 var _timescale_index := 0
 var _smoke_test := false
@@ -55,7 +58,9 @@ var _smoke_minutes := 0
 func _ready() -> void:
 	InputSetup.ensure_actions()
 	Sim.reset_clock()
+	Env.reset()
 	_build_terrain()
+	_build_lighting()
 	_spawn_player()
 	_build_hud()
 	_spawn_world_items()
@@ -114,6 +119,35 @@ func _build_terrain() -> void:
 ## True if a tile cell is land (not water) — used for valid item placement.
 func _is_land(cell: Vector2i) -> bool:
 	return _terrain.get_cell_atlas_coords(cell).x != 3
+
+## A full-screen tint node for day/night + weather darkening.
+func _build_lighting() -> void:
+	_canvas_modulate = CanvasModulate.new()
+	_canvas_modulate.name = "Lighting"
+	add_child(_canvas_modulate)
+
+func _process(delta: float) -> void:
+	if _canvas_modulate != null:
+		# Darken toward a cold night-blue as night / weather darkness rises.
+		var d := Env.darkness()
+		_canvas_modulate.color = Color(1.0 - d, 1.0 - d, 1.0 - d * 0.82)
+	_track_biome(delta)
+
+## Throttled check for which biome the player is in, for HUD + notifications.
+func _track_biome(delta: float) -> void:
+	if player == null:
+		return
+	_biome_check_accum += delta
+	if _biome_check_accum < 0.4:
+		return
+	_biome_check_accum = 0.0
+	var biome: Dictionary = Env.biome_at(player.global_position)
+	var id := String(biome.get("id", ""))
+	if id != _current_biome:
+		_current_biome = id
+		EventBus.biome_entered.emit(id, String(biome.get("name", id)))
+		var warn := "  — cold; dress warm" if bool(biome.get("gated", false)) else ""
+		EventBus.notice.emit("Entered %s%s" % [biome.get("name", id), warn])
 
 func _build_tile_set() -> TileSet:
 	var source := TileSetAtlasSource.new()
@@ -264,25 +298,28 @@ func _spawn_nodes(spawns: Dictionary) -> void:
 		var def: Dictionary = GatherDb.node_defs[node_id]
 		var allowed: Array = def.get("terrain", ["grass"])
 		for _i in int(entry["count"]):
-			var pos := _random_cell_position(rng, allowed)
+			var pos := _random_cell_position(rng, allowed, node_id)
 			if pos == Vector2.INF:
 				continue
 			var node := ResourceNodeEntityScript.create(node_id, pos, "%s_%d" % [node_id, placed])
 			_nodes.add_child(node)
 			placed += 1
 
-## A random tile-center whose terrain is in `allowed`, or Vector2.INF if none
-## found in a reasonable number of attempts.
-func _random_cell_position(rng: RandomNumberGenerator, allowed: Array) -> Vector2:
+## A random tile-center whose terrain is in `allowed` AND whose biome permits
+## `node_id`, or Vector2.INF if none found in a reasonable number of attempts.
+func _random_cell_position(rng: RandomNumberGenerator, allowed: Array, node_id: String) -> Vector2:
 	var wanted: Array[int] = []
 	for name: String in allowed:
 		wanted.append(int(TERRAIN_INDEX[name]))
-	for _attempt in 40:
+	for _attempt in 60:
 		var cell := Vector2i(
 			rng.randi_range(-MAP_HALF_WIDTH + 1, MAP_HALF_WIDTH - 2),
 			rng.randi_range(-MAP_HALF_HEIGHT + 1, MAP_HALF_HEIGHT - 2))
-		if _terrain.get_cell_atlas_coords(cell).x in wanted:
-			return Vector2(cell * TILE_SIZE) + Vector2(TILE_SIZE, TILE_SIZE) * 0.5
+		if _terrain.get_cell_atlas_coords(cell).x not in wanted:
+			continue
+		var pos := Vector2(cell * TILE_SIZE) + Vector2(TILE_SIZE, TILE_SIZE) * 0.5
+		if Env.biomes.allows_node(String(Env.biome_at(pos)["id"]), node_id):
+			return pos
 	return Vector2.INF
 
 func _random_land_position(rng: RandomNumberGenerator) -> Vector2:
@@ -528,6 +565,19 @@ func _smoke_test_inventory() -> void:
 	print("[smoke] pickaxe durability %d -> %d after repair" % [
 			worn, inventory.current_durability("stone_pickaxe")])
 	assert(inventory.current_durability("stone_pickaxe") > worn, "repair restores durability")
+
+	# --- M6: weather drives the warmth model; biomes shift temperature ---
+	var core_temp := Env.ambient_c_at(Vector2.ZERO)
+	var far_temp := Env.ambient_c_at(Vector2(2000, 1500))
+	print("[smoke] ambient: outpost %.1f°C vs distant biome %.1f°C, weather=%s" % [
+			core_temp, far_temp, Env.weather.display_name()])
+	# Force a storm and confirm the vitals env now carries wind chill + wetness.
+	Env.weather.current = "storm"
+	vitals.campfire_on = false
+	var env := vitals._build_env()
+	print("[smoke] storm env -> wind_chill %.1f, wetness %.1f" % [
+			env["wind_chill_c"], env["wetness"]])
+	assert(env["wind_chill_c"] > 0.0 and env["wetness"] > 0.0, "storm must chill and wet the player")
 
 func _on_smoke_minute(minutes: int) -> void:
 	_smoke_minutes += minutes

@@ -25,8 +25,11 @@ func _process(_delta: float) -> void:
 	]
 	var vitals := _find_vitals()
 	if vitals != null:
-		lines.append("Ambient %.1f°C   Fire: %s   Asleep: %s" % [
-			vitals.ambient_c(),
+		var biome: Dictionary = Env.biome_at(vitals.get_parent().global_position) \
+				if vitals.get_parent() is Node2D else {}
+		lines.append("%s  —  %s   Ambient %.1f°C" % [
+			biome.get("name", "?"), Env.weather.display_name(), vitals.ambient_c()])
+		lines.append("Fire: %s   Asleep: %s" % [
 			"lit" if vitals.campfire_on else "—",
 			"yes" if vitals.asleep else "no"])
 	lines.append("Speed x%.0f   FPS %d" % [Sim.time_scale, Engine.get_frames_per_second()])

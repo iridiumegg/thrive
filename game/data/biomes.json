@@ -1,0 +1,36 @@
+{
+  "core_radius_tiles": 14,
+  "core_biome": "meadow",
+  "noise_frequency": 0.018,
+  "biomes": [
+    {
+      "id": "meadow",
+      "name": "Outpost Meadow",
+      "temp_offset_c": 2.0,
+      "tint": [150, 168, 120],
+      "nodes": ["tree", "berry_bush", "fiber_plant", "boulder", "spring"]
+    },
+    {
+      "id": "pinewood",
+      "name": "Pinewood",
+      "temp_offset_c": 0.0,
+      "tint": [110, 134, 108],
+      "nodes": ["tree", "fiber_plant", "boulder", "ore_vein", "spring"]
+    },
+    {
+      "id": "stony_highland",
+      "name": "Stony Highland",
+      "temp_offset_c": -4.0,
+      "tint": [140, 142, 146],
+      "nodes": ["boulder", "ore_vein", "tree"]
+    },
+    {
+      "id": "frostmarsh",
+      "name": "Frostmarsh",
+      "temp_offset_c": -9.0,
+      "tint": [120, 140, 168],
+      "gated": true,
+      "nodes": ["fiber_plant", "spring", "boulder"]
+    }
+  ]
+}

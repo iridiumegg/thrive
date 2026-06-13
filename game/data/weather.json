@@ -1,0 +1,21 @@
+{
+  "initial": "clear",
+  "snow_threshold_c": 1.0,
+  "duration_minutes": { "min": 90, "max": 360 },
+  "states": {
+    "clear":  { "name": "Clear",   "wind_chill_c": 0.0, "wetness": 0.0, "temp_offset_c": 1.0,  "darkness": 0.0 },
+    "cloudy": { "name": "Cloudy",  "wind_chill_c": 1.0, "wetness": 0.0, "temp_offset_c": 0.0,  "darkness": 0.12 },
+    "rain":   { "name": "Rain",    "wind_chill_c": 3.0, "wetness": 1.0, "temp_offset_c": -2.0, "darkness": 0.28 },
+    "snow":   { "name": "Snow",    "wind_chill_c": 4.0, "wetness": 0.6, "temp_offset_c": -3.0, "darkness": 0.18 },
+    "storm":  { "name": "Storm",   "wind_chill_c": 8.0, "wetness": 1.0, "temp_offset_c": -4.0, "darkness": 0.45 }
+  },
+  "transitions": {
+    "clear":  [ { "to": "clear", "weight": 3 }, { "to": "cloudy", "weight": 2 } ],
+    "cloudy": [ { "to": "clear", "weight": 2 }, { "to": "cloudy", "weight": 1 }, { "to": "rain", "weight": 2 }, { "to": "storm", "weight": 1 } ],
+    "rain":   [ { "to": "cloudy", "weight": 3 }, { "to": "rain", "weight": 1 }, { "to": "storm", "weight": 1 } ],
+    "snow":   [ { "to": "cloudy", "weight": 3 }, { "to": "snow", "weight": 1 }, { "to": "storm", "weight": 1 } ],
+    "storm":  [ { "to": "rain", "weight": 2 }, { "to": "cloudy", "weight": 2 } ]
+  },
+  "precip_states": ["rain", "snow", "storm"],
+  "season_precip_multiplier": [1.0, 0.8, 1.1, 1.4]
+}
