@@ -18,6 +18,9 @@
     "encumbered_speed_min": 0.5,
     "encumbered_activity_max": 2.0
   },
+  "gathering": {
+    "harvest_energy_cost": 1.5
+  },
   "vitals": {
     "calories_max": 2500.0,
     "calories_drain_per_hour": 85.0,

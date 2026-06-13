@@ -1,0 +1,66 @@
+[
+  {
+    "id": "tree",
+    "name": "Bare Tree",
+    "action": "harvest",
+    "tool": { "tag": "axe", "tier": 1 },
+    "loot_table": "tree_harvest",
+    "max_harvests": 4,
+    "respawn_minutes": 480,
+    "color": [78, 96, 70],
+    "terrain": ["grass", "dirt"]
+  },
+  {
+    "id": "boulder",
+    "name": "Boulder",
+    "action": "harvest",
+    "tool": { "tag": "pickaxe", "tier": 1 },
+    "loot_table": "rock_harvest",
+    "max_harvests": 3,
+    "respawn_minutes": 600,
+    "color": [120, 124, 130],
+    "terrain": ["rock", "dirt"]
+  },
+  {
+    "id": "ore_vein",
+    "name": "Iron Vein",
+    "action": "harvest",
+    "tool": { "tag": "pickaxe", "tier": 2 },
+    "loot_table": "ore_harvest",
+    "max_harvests": 3,
+    "respawn_minutes": 900,
+    "color": [150, 110, 84],
+    "terrain": ["rock"]
+  },
+  {
+    "id": "berry_bush",
+    "name": "Berry Bush",
+    "action": "harvest",
+    "tool": { "tag": "", "tier": 0 },
+    "loot_table": "berry_bush",
+    "max_harvests": 2,
+    "respawn_minutes": 360,
+    "color": [120, 70, 92],
+    "terrain": ["grass"]
+  },
+  {
+    "id": "fiber_plant",
+    "name": "Fiber Stalks",
+    "action": "harvest",
+    "tool": { "tag": "", "tier": 0 },
+    "loot_table": "fiber_plant",
+    "max_harvests": 3,
+    "respawn_minutes": 300,
+    "color": [110, 124, 78],
+    "terrain": ["grass", "dirt"]
+  },
+  {
+    "id": "spring",
+    "name": "Clear Spring",
+    "action": "drink",
+    "hydration_pct": 30,
+    "fills": { "from": "waterskin_empty", "to": "waterskin_full" },
+    "color": [88, 150, 176],
+    "terrain": ["grass", "dirt"]
+  }
+]

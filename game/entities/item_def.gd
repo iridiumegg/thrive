@@ -18,6 +18,8 @@ var food: Dictionary          # {} if not consumable; else {kcal, hydration_pct,
 var equip_slot: String        # "" if not equippable; else head/body/hands/feet/tool
 var insulation_c: float       # warmth contribution when equipped (clothing)
 var durability_max: int       # 0 if the item has no durability
+var tool_tag: String          # "" if not a tool; else axe/pickaxe/... (gathering gate)
+var tier: int                 # tool quality tier; gates which nodes it can work
 
 static func from_dict(d: Dictionary) -> ItemDef:
 	var def := ItemDef.new()
@@ -33,6 +35,8 @@ static func from_dict(d: Dictionary) -> ItemDef:
 	def.equip_slot = String(d.get("equip_slot", ""))
 	def.insulation_c = float(d.get("insulation_c", 0.0))
 	def.durability_max = int(d.get("durability_max", 0))
+	def.tool_tag = String(d.get("tool_tag", ""))
+	def.tier = int(d.get("tier", 0))
 	return def
 
 func is_edible() -> bool:

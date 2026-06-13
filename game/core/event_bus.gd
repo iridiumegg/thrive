@@ -40,3 +40,11 @@ signal item_dropped(item_id: String, qty: int)
 
 ## A transient one-line message for the HUD (e.g. "Pack is full").
 signal notice(text: String)
+
+## --- Gathering / tools (Milestone 4) ---
+
+## Current interaction hint for the HUD ("" when nothing is in range).
+signal interaction_prompt(text: String)
+
+## Emitted when the player successfully harvests a node (for skills/quests).
+signal node_harvested(node_id: String, loot: Dictionary)

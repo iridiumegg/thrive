@@ -18,6 +18,8 @@ godot --path .
 | Input | Action |
 |-------|--------|
 | WASD / arrows | Move (walk over items to pick them up) |
+| E / Space | Interact: harvest a node, drink at a spring, work a trap |
+| Q | Deploy a snare trap (consumes a trap kit + bait) |
 | Tab / I | Open / close the inventory & equipment screen |
 | Left-click slot | Use food / equip gear |
 | Right-click slot | Drop one |
@@ -66,7 +68,8 @@ godot --headless --path . -- --smoke-test
   /systems     # vitals simulation (pure logic) + engine-side adapter
   /world       # main scene, terrain generation
   /ui          # debug HUD, vitals HUD
-  /data        # balance.json, afflictions.json, items.json, world_spawns.json
+  /data        # balance, afflictions, items, world_spawns, resource_nodes,
+               #   loot_tables, traps (all tunables / content live here)
   /assets      # (empty — current art is generated in code; see ASSETS_LICENSES.md)
 /tests         # headless unit tests for the simulation layer
 ```
@@ -90,7 +93,11 @@ Afflictions (hypothermia, starvation, dehydration, exhaustion) are defined in
 - [x] **M3 — Inventory & items:** weight-based grid inventory, data-driven
       item defs, world pickups (seeded placement), equipment slots feeding
       the warmth model, encumbrance, eat/drink/equip/drop, inventory UI
-- [ ] M4 — Gathering & tools
+- [x] **M4 — Gathering & tools:** resource nodes with yield tables, depletion
+      & seeded respawn; tool tiers + durability gating node access (soft tech
+      tree); weighted seed-aware loot tables; passive baited trapping
+      subsystem; springs for water. (Open knob resolved: trapping included;
+      fishing/hunting deferred.)
 - [ ] M5 — Crafting
 - [ ] M6 — World depth (seasons/weather/biomes; handcrafted core map)
 - [ ] M7 — Building

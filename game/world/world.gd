@@ -9,7 +9,10 @@ extends Node2D
 const PlayerScript := preload("res://game/entities/player.gd")
 const VitalsComponentScript := preload("res://game/systems/vitals/vitals_component.gd")
 const InventoryComponentScript := preload("res://game/systems/inventory/inventory_component.gd")
+const GatheringComponentScript := preload("res://game/systems/gathering/gathering_component.gd")
 const PickupScript := preload("res://game/entities/pickup.gd")
+const ResourceNodeEntityScript := preload("res://game/entities/resource_node_entity.gd")
+const TrapEntityScript := preload("res://game/entities/trap_entity.gd")
 const DebugHudScript := preload("res://game/ui/debug_hud.gd")
 const VitalsHudScript := preload("res://game/ui/vitals_hud.gd")
 const InventoryScreenScript := preload("res://game/ui/inventory_screen.gd")
@@ -35,9 +38,12 @@ const SLEEP_TIME_SCALE := 8.0
 var player: Player
 var vitals: VitalsComponent
 var inventory: InventoryComponent
+var gathering: GatheringComponent
 var death_overlay: CenterContainer
 var _terrain: TileMapLayer
 var _pickups: Node2D
+var _nodes: Node2D
+var _trap_counter := 0
 var _timescale_index := 0
 var _smoke_test := false
 var _smoke_minutes := 0
@@ -60,7 +66,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if not vitals.state.alive:
 		return
-	if event.is_action_pressed("debug_eat"):
+	if event.is_action_pressed("interact"):
+		gathering.interact()
+	elif event.is_action_pressed("deploy_trap"):
+		_deploy_trap()
+	elif event.is_action_pressed("debug_eat"):
 		vitals.debug_eat()
 	elif event.is_action_pressed("debug_drink"):
 		vitals.debug_drink()
@@ -157,6 +167,12 @@ func _spawn_player() -> void:
 	player.add_child(inventory)
 	player.inventory = inventory
 
+	gathering = GatheringComponentScript.new()
+	gathering.name = "Gathering"
+	player.add_child(gathering)
+	gathering.setup(player, vitals, inventory)
+	player.gathering = gathering
+
 	add_child(player)
 
 ## Placeholder survivor sprite: a hooded figure, drawn in code.
@@ -188,8 +204,12 @@ func _spawn_world_items() -> void:
 	_pickups = Node2D.new()
 	_pickups.name = "Pickups"
 	add_child(_pickups)
+	_nodes = Node2D.new()
+	_nodes.name = "Nodes"
+	add_child(_nodes)
 
 	var spawns: Dictionary = Balance.load_json(SPAWNS_PATH)
+	_spawn_nodes(spawns)
 	var rng := SeededRng.new(int(Balance.data["world_seed"])).stream("world_items")
 
 	# Starter kit: a loose ring of items just around the outpost (origin).
@@ -205,6 +225,40 @@ func _spawn_world_items() -> void:
 		for _i in int(entry["count"]):
 			var qty := rng.randi_range(int(entry["qty_min"]), int(entry["qty_max"]))
 			_add_pickup(String(entry["item"]), qty, _random_land_position(rng))
+
+## Terrain name -> atlas column (matches _build_terrain).
+const TERRAIN_INDEX := {"grass": 0, "dirt": 1, "rock": 2, "water": 3}
+
+## Place resource nodes on terrain types each node type allows. Seeded, so a
+## given world_seed always lays out the same nodes.
+func _spawn_nodes(spawns: Dictionary) -> void:
+	var rng := SeededRng.new(int(Balance.data["world_seed"])).stream("nodes")
+	var placed := 0
+	for entry: Dictionary in spawns.get("nodes", []):
+		var node_id := String(entry["node"])
+		var def: Dictionary = GatherDb.node_defs[node_id]
+		var allowed: Array = def.get("terrain", ["grass"])
+		for _i in int(entry["count"]):
+			var pos := _random_cell_position(rng, allowed)
+			if pos == Vector2.INF:
+				continue
+			var node := ResourceNodeEntityScript.create(node_id, pos, "%s_%d" % [node_id, placed])
+			_nodes.add_child(node)
+			placed += 1
+
+## A random tile-center whose terrain is in `allowed`, or Vector2.INF if none
+## found in a reasonable number of attempts.
+func _random_cell_position(rng: RandomNumberGenerator, allowed: Array) -> Vector2:
+	var wanted: Array[int] = []
+	for name: String in allowed:
+		wanted.append(int(TERRAIN_INDEX[name]))
+	for _attempt in 40:
+		var cell := Vector2i(
+			rng.randi_range(-MAP_HALF_WIDTH + 1, MAP_HALF_WIDTH - 2),
+			rng.randi_range(-MAP_HALF_HEIGHT + 1, MAP_HALF_HEIGHT - 2))
+		if _terrain.get_cell_atlas_coords(cell).x in wanted:
+			return Vector2(cell * TILE_SIZE) + Vector2(TILE_SIZE, TILE_SIZE) * 0.5
+	return Vector2.INF
 
 func _random_land_position(rng: RandomNumberGenerator) -> Vector2:
 	for _attempt in 30:
@@ -224,6 +278,29 @@ func _add_pickup(item_id: String, qty: int, world_position: Vector2) -> void:
 func _on_item_dropped(item_id: String, qty: int) -> void:
 	var offset := Vector2(randf_range(-10.0, 10.0), 12.0)
 	_add_pickup(item_id, qty, player.global_position + offset)
+
+## Deploy a carried snare trap at the player's feet, consuming the kit and a
+## unit of bait, then arming it. (Full placeable-building UI arrives at M7;
+## this is the self-contained hook for the trapping subsystem.)
+func _deploy_trap() -> void:
+	const TRAP_ID := "snare_trap"
+	if not gathering.has_item(TRAP_ID, 1):
+		EventBus.notice.emit("No snare trap to set")
+		return
+	var trap_def: Dictionary = GatherDb.trap_defs[TRAP_ID]
+	for entry: Dictionary in trap_def.get("bait", []):
+		if not gathering.has_item(String(entry["item"]), int(entry["qty"])):
+			EventBus.notice.emit("Need bait: %s" % ItemDb.get_def(String(entry["item"])).name)
+			return
+	gathering.consume(TRAP_ID, 1)
+	for entry: Dictionary in trap_def.get("bait", []):
+		gathering.consume(String(entry["item"]), int(entry["qty"]))
+
+	var entity := TrapEntityScript.create(TRAP_ID, player.global_position + Vector2(0, 10), str(_trap_counter))
+	_trap_counter += 1
+	entity.trap.arm()
+	_nodes.add_child(entity)
+	EventBus.notice.emit("Snare set — check back later")
 
 ## --- UI ---
 
@@ -246,6 +323,7 @@ func _build_hud() -> void:
 	inventory_screen.bind(inventory)
 
 	_build_toast(hud)
+	_build_prompt(hud)
 
 	death_overlay = CenterContainer.new()
 	death_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -284,6 +362,23 @@ func _build_toast(hud: CanvasLayer) -> void:
 	EventBus.item_picked_up.connect(func(item_id: String, qty: int) -> void:
 		EventBus.notice.emit("Picked up %s%s" % [
 				ItemDb.get_def(item_id).name, "  x%d" % qty if qty > 1 else ""]))
+
+## Centered interaction hint just above the player (fed by interaction_prompt).
+func _build_prompt(hud: CanvasLayer) -> void:
+	var prompt := Label.new()
+	prompt.name = "Prompt"
+	prompt.set_anchors_preset(Control.PRESET_CENTER)
+	prompt.offset_top = 40
+	prompt.offset_left = -220
+	prompt.offset_right = 220
+	prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	prompt.add_theme_font_size_override("font_size", 14)
+	prompt.add_theme_color_override("font_color", Color(0.96, 0.93, 0.78))
+	prompt.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.85))
+	prompt.add_theme_constant_override("shadow_offset_x", 1)
+	prompt.add_theme_constant_override("shadow_offset_y", 1)
+	hud.add_child(prompt)
+	EventBus.interaction_prompt.connect(func(text: String) -> void: prompt.text = text)
 
 func _on_player_died() -> void:
 	death_overlay.visible = true
@@ -328,6 +423,35 @@ func _smoke_test_inventory() -> void:
 			break
 	print("[smoke] ate berries -> calories %.0f, weight %.1f kg" % [
 			vitals.state.calories, inventory.inventory.total_weight()])
+
+	# --- M4: gather from a node with the right tool, and run a trap cycle ---
+	# Equip the axe, then harvest a HarvestNode directly through its loot logic.
+	inventory.pickup("stone_axe", 1)
+	for i in inventory.inventory.slots.size():
+		var stack: Inventory.Stack = inventory.inventory.slots[i]
+		if stack != null and stack.item_id == "stone_axe":
+			inventory.use_slot(i)
+			break
+	var tree := GatherDb.new_node("tree", "smoke_tree")
+	var tier := gathering.tool_tier_for("axe")
+	var loot := tree.harvest(tier)
+	print("[smoke] axe tier %d harvested tree -> %s (durability now %d)" % [
+			tier, loot, inventory.current_durability("stone_axe") - 0])
+	gathering.damage_tool()
+	assert(not loot.is_empty(), "a tier-1 axe must harvest a tier-1 tree")
+	assert(inventory.current_durability("stone_axe") < ItemDb.get_def("stone_axe").durability_max,
+			"harvesting must wear the tool")
+
+	# Trap: arm, fast-forward past the catch interval, confirm it resolves.
+	var trap := GatherDb.new_trap("snare_trap")
+	trap.arm()
+	var trap_rng := SeededRng.new(1).stream("smoke_trap")
+	var minutes_waited := 0
+	while trap.is_armed() and minutes_waited < 10000:
+		trap.tick(60, trap_rng)
+		minutes_waited += 60
+	print("[smoke] trap resolved after %d min -> %s" % [
+			minutes_waited, "caught " + str(trap.collect()) if trap.is_caught() else "empty"])
 
 func _on_smoke_minute(minutes: int) -> void:
 	_smoke_minutes += minutes

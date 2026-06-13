@@ -5,14 +5,25 @@
     "work_gloves",
     "lined_boots",
     "stone_axe",
+    "snare_trap",
+    "snare_trap",
     "waterskin_full"
   ],
   "scatter": [
-    { "item": "wild_berries", "count": 18, "qty_min": 1, "qty_max": 3 },
-    { "item": "branch", "count": 14, "qty_min": 1, "qty_max": 2 },
-    { "item": "stone", "count": 10, "qty_min": 1, "qty_max": 2 },
-    { "item": "flint_stone", "count": 8, "qty_min": 1, "qty_max": 1 },
-    { "item": "plant_fiber", "count": 8, "qty_min": 1, "qty_max": 3 },
-    { "item": "waterskin_full", "count": 3, "qty_min": 1, "qty_max": 1 }
+    { "item": "wild_berries", "count": 12, "qty_min": 1, "qty_max": 3 },
+    { "item": "branch", "count": 10, "qty_min": 1, "qty_max": 2 },
+    { "item": "stone", "count": 8, "qty_min": 1, "qty_max": 2 },
+    { "item": "flint_stone", "count": 6, "qty_min": 1, "qty_max": 1 },
+    { "item": "plant_fiber", "count": 6, "qty_min": 1, "qty_max": 3 },
+    { "item": "waterskin_full", "count": 3, "qty_min": 1, "qty_max": 1 },
+    { "item": "stone_pickaxe", "count": 1, "qty_min": 1, "qty_max": 1 }
+  ],
+  "nodes": [
+    { "node": "tree", "count": 26 },
+    { "node": "berry_bush", "count": 16 },
+    { "node": "fiber_plant", "count": 16 },
+    { "node": "boulder", "count": 14 },
+    { "node": "ore_vein", "count": 6 },
+    { "node": "spring", "count": 5 }
   ]
 }

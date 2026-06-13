@@ -201,8 +201,12 @@ func _refresh_equipment() -> void:
 			row.disabled = true
 		else:
 			var def := ItemDb.get_def(id)
-			var warmth := "  (+%.0f°)" % def.insulation_c if def.insulation_c > 0.0 else ""
-			row.text = "  %s: %s%s" % [slot.capitalize(), def.name, warmth]
+			var detail := ""
+			if def.insulation_c > 0.0:
+				detail = "  (+%.0f°)" % def.insulation_c
+			elif def.durability_max > 0:
+				detail = "  [%d/%d]" % [_inv_component.current_durability(id), def.durability_max]
+			row.text = "  %s: %s%s" % [slot.capitalize(), def.name, detail]
 			row.pressed.connect(_inv_component.unequip.bind(slot))
 			row.mouse_entered.connect(func() -> void: _show_detail(ItemDb.get_def(id)))
 		_equip_box.add_child(row)

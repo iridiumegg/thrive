@@ -1,0 +1,10 @@
+[
+  {
+    "id": "snare_trap",
+    "name": "Snare Trap",
+    "bait": [ { "item": "wild_berries", "qty": 1 } ],
+    "catch_minutes": 240,
+    "success_chance": 0.6,
+    "loot_table": "snare_catch"
+  }
+]

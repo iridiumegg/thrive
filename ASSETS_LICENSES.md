@@ -11,6 +11,8 @@ Acceptable licenses: CC0, CC-BY (with attribution), or original work.
 | Terrain tile atlas | Generated procedurally at runtime (`game/world/world.gd`) | Original (this project) | — |
 | Player sprite | Generated procedurally at runtime (`game/world/world.gd`) | Original (this project) | — |
 | Item icons | Generated procedurally at runtime (`game/ui/item_icons.gd`) | Original (this project) | — |
+| Resource node sprites | Generated procedurally at runtime (`game/entities/resource_node_entity.gd`) | Original (this project) | — |
+| Trap sprites | Generated procedurally at runtime (`game/entities/trap_entity.gd`) | Original (this project) | — |
 
 No external art, audio, or font assets are currently used. UI text rendering
 uses Godot's built-in default theme font.

@@ -16,6 +16,7 @@ config/features=PackedStringArray("4.3")
 EventBus="*res://game/core/event_bus.gd"
 Balance="*res://game/core/balance_db.gd"
 ItemDb="*res://game/core/item_db.gd"
+GatherDb="*res://game/core/gather_db.gd"
 Sim="*res://game/core/simulation.gd"
 
 [display]

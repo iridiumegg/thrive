@@ -10,6 +10,16 @@
     "description": "A dry, arm-length branch. Fuel, or the start of a tool."
   },
   {
+    "id": "wood_log",
+    "name": "Wood Log",
+    "category": "material",
+    "stack_size": 10,
+    "weight": 2.0,
+    "value": 3,
+    "tags": ["wood", "flammable"],
+    "description": "A short, heavy length of trunk. Splits into planks and fuel."
+  },
+  {
     "id": "stone",
     "name": "Stone",
     "category": "material",
@@ -30,6 +40,16 @@
     "description": "Strikes a hot spark off steel — or a sharp edge off itself."
   },
   {
+    "id": "iron_ore",
+    "name": "Iron Ore",
+    "category": "material",
+    "stack_size": 20,
+    "weight": 1.2,
+    "value": 6,
+    "tags": ["metal", "ore", "smithing"],
+    "description": "Rust-streaked rock with metal sleeping inside. Needs a forge."
+  },
+  {
     "id": "plant_fiber",
     "name": "Plant Fiber",
     "category": "material",
@@ -40,15 +60,36 @@
     "description": "Tough stalks that twist into serviceable cordage."
   },
   {
+    "id": "small_hide",
+    "name": "Small Hide",
+    "category": "material",
+    "stack_size": 20,
+    "weight": 0.4,
+    "value": 5,
+    "tags": ["hide", "tailoring"],
+    "description": "A modest pelt. Cured and stitched, it turns the wind."
+  },
+  {
     "id": "wild_berries",
     "name": "Wild Berries",
     "category": "food",
     "stack_size": 20,
     "weight": 0.1,
     "value": 2,
-    "tags": ["edible", "plant"],
+    "tags": ["edible", "plant", "bait"],
     "food": { "kcal": 90, "hydration_pct": 4 },
-    "description": "Tart, dusky berries. A handful keeps you moving."
+    "description": "Tart, dusky berries. A handful keeps you moving — or baits a snare."
+  },
+  {
+    "id": "raw_meat",
+    "name": "Raw Meat",
+    "category": "food",
+    "stack_size": 10,
+    "weight": 0.5,
+    "value": 4,
+    "tags": ["edible", "raw", "meat"],
+    "food": { "kcal": 280, "hydration_pct": 0 },
+    "description": "Fresh game. Filling, but raw meat is a gamble — better cooked."
   },
   {
     "id": "waterskin_full",
@@ -70,6 +111,16 @@
     "value": 4,
     "tags": ["container"],
     "description": "A limp leather skin, waiting for a clean source."
+  },
+  {
+    "id": "snare_trap",
+    "name": "Snare Trap",
+    "category": "tool",
+    "stack_size": 4,
+    "weight": 0.6,
+    "value": 7,
+    "tags": ["trap", "deployable"],
+    "description": "A loop of cord and a bent sapling. Bait it and wait."
   },
   {
     "id": "knit_cap",
@@ -128,7 +179,23 @@
     "value": 8,
     "tags": ["tool:axe"],
     "equip_slot": "tool",
+    "tool_tag": "axe",
+    "tier": 1,
     "durability_max": 60,
     "description": "Flint head, lashed haft. Crude, but trees don't judge."
+  },
+  {
+    "id": "stone_pickaxe",
+    "name": "Stone Pickaxe",
+    "category": "tool",
+    "stack_size": 1,
+    "weight": 1.8,
+    "value": 9,
+    "tags": ["tool:pickaxe"],
+    "equip_slot": "tool",
+    "tool_tag": "pickaxe",
+    "tier": 1,
+    "durability_max": 70,
+    "description": "A wedged stone head for prying stone from stone."
   }
 ]

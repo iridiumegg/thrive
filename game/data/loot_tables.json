@@ -1,0 +1,38 @@
+{
+  "tree_harvest": {
+    "guaranteed": [ { "item": "wood_log", "min": 1, "max": 2 } ],
+    "rolls": { "count": 1, "entries": [
+      { "item": "branch", "weight": 3 },
+      { "item": "plant_fiber", "weight": 1 }
+    ] },
+    "rare": [ { "item": "flint_stone", "chance": 0.08 } ]
+  },
+  "rock_harvest": {
+    "guaranteed": [ { "item": "stone", "min": 1, "max": 2 } ],
+    "rolls": { "count": 1, "entries": [
+      { "item": "flint_stone", "weight": 2 },
+      { "item": "stone", "weight": 3 }
+    ] }
+  },
+  "ore_harvest": {
+    "guaranteed": [ { "item": "iron_ore", "min": 1, "max": 1 } ],
+    "rolls": { "count": 1, "entries": [
+      { "item": "stone", "weight": 3 },
+      { "item": "iron_ore", "weight": 1 }
+    ] },
+    "rare": [ { "item": "flint_stone", "chance": 0.15 } ]
+  },
+  "berry_bush": {
+    "guaranteed": [ { "item": "wild_berries", "min": 2, "max": 4 } ]
+  },
+  "fiber_plant": {
+    "guaranteed": [ { "item": "plant_fiber", "min": 2, "max": 3 } ]
+  },
+  "snare_catch": {
+    "rolls": { "count": 1, "entries": [
+      { "item": "raw_meat", "weight": 3, "min": 1, "max": 2 },
+      { "item": "small_hide", "weight": 2 }
+    ] },
+    "rare": [ { "item": "small_hide", "chance": 0.2 } ]
+  }
+}

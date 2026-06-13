@@ -10,6 +10,12 @@ extends Node
 var inventory: Inventory
 var equipment: Equipment
 
+## Per-tool current durability, keyed by item id (tools are unique enough that
+## id-keying is fine, and it survives equip/unequip — unlike slot-keying). A
+## missing entry means "full". Proper per-instance durability waits on item
+## instances; this is the honest minimum that makes wear-and-break real.
+var tool_durability: Dictionary = {}
+
 var _vitals: VitalsComponent
 
 func setup(vitals: VitalsComponent) -> void:
@@ -93,6 +99,33 @@ func drop_slot(index: int) -> void:
 	inventory.remove_slot(index, 1)
 	EventBus.item_dropped.emit(item_id, 1)
 	EventBus.inventory_changed.emit(inventory)
+
+## --- Tool durability ---
+
+## Current durability of an item, or -1 if the item has no durability.
+func current_durability(item_id: String) -> int:
+	var def := ItemDb.get_def(item_id)
+	if def == null or def.durability_max <= 0:
+		return -1
+	return int(tool_durability.get(item_id, def.durability_max))
+
+## Wear down the equipped tool by `amount`; break (and remove) it at zero.
+func damage_equipped_tool(amount: int = 1) -> void:
+	var id := equipment.equipped("tool")
+	if id == "":
+		return
+	var def := ItemDb.get_def(id)
+	if def.durability_max <= 0:
+		return
+	var remaining := current_durability(id) - amount
+	if remaining <= 0:
+		equipment.unequip("tool")
+		tool_durability.erase(id)
+		EventBus.notice.emit("%s broke" % def.name)
+		_emit_changed()
+	else:
+		tool_durability[id] = remaining
+		EventBus.equipment_changed.emit(equipment)
 
 ## Warmth contribution from clothing, used by the vitals component each tick.
 func total_insulation_c() -> float:
