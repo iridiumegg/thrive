@@ -67,6 +67,16 @@ func _complete(id: String) -> void:
 	EventBus.quest_completed.emit(id)
 	EventBus.notice.emit("Quest complete: %s" % quest["title"])
 
+## --- Save/load ---
+
+func save() -> Dictionary:
+	return {"quests": system.to_data(), "flags": flags.to_data()}
+
+func load_save(data: Dictionary) -> void:
+	system.load_data(data.get("quests", {}))
+	flags.load_data(data.get("flags", {}))
+	EventBus.quest_progress_changed.emit()
+
 ## --- Context for prerequisite checks ---
 
 func _context() -> Dictionary:

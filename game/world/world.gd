@@ -60,6 +60,8 @@ var _sleeping_in_bed := false
 var _terrain: TileMapLayer
 var _pickups: Node2D
 var _nodes: Node2D
+var _npcs: Node2D
+var _note_layer: Node2D
 var _canvas_modulate: CanvasModulate
 var _current_biome := ""
 var _biome_check_accum := 0.0
@@ -82,12 +84,19 @@ func _ready() -> void:
 	EventBus.item_dropped.connect(_on_item_dropped)
 	EventBus.sleep_requested.connect(_begin_bed_sleep)
 	EventBus.sim_minute.connect(_on_world_minute)
+	EventBus.day_advanced.connect(_on_day_autosave)
 	if "--smoke-test" in OS.get_cmdline_user_args():
 		_start_smoke_test()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("restart") and not vitals.state.alive:
 		get_tree().reload_current_scene()
+		return
+	if event.is_action_pressed("save_game"):
+		save_to_disk()
+		return
+	if event.is_action_pressed("load_game"):
+		load_from_disk()
 		return
 	if not vitals.state.alive:
 		return
@@ -295,12 +304,28 @@ func _spawn_world_items() -> void:
 	_nodes = Node2D.new()
 	_nodes.name = "Nodes"
 	add_child(_nodes)
+	_npcs = Node2D.new()
+	_npcs.name = "Npcs"
+	add_child(_npcs)
+	_note_layer = Node2D.new()
+	_note_layer.name = "Notes"
+	add_child(_note_layer)
 
+	# Notes and NPCs are always present (their dynamic state lives in the player's
+	# story/dialogue components, restored separately).
+	_spawn_npcs()
+	_spawn_notes()
+
+	if SaveService.has_pending():
+		call_deferred("apply_save", SaveService.take_pending())
+	else:
+		_spawn_fresh_world()
+
+## Fresh-game world: seeded nodes, the outpost stations, and scattered loot.
+func _spawn_fresh_world() -> void:
 	var spawns: Dictionary = Balance.load_json(SPAWNS_PATH)
 	_spawn_nodes(spawns)
 	_spawn_stations()
-	_spawn_npcs()
-	_spawn_notes()
 	var rng := SeededRng.new(int(Balance.data["world_seed"])).stream("world_items")
 
 	# Starter kit: a loose ring of items just around the outpost (origin).
@@ -342,19 +367,13 @@ func _spawn_stations() -> void:
 
 ## The two souls who stayed when the others fled.
 func _spawn_npcs() -> void:
-	var npcs := Node2D.new()
-	npcs.name = "Npcs"
-	add_child(npcs)
 	for npc_id in NpcDb.ordered:
-		npcs.add_child(NpcEntityScript.create(npc_id))
+		_npcs.add_child(NpcEntityScript.create(npc_id))
 
 ## Found documents, placed at their authored spots in the world.
 func _spawn_notes() -> void:
-	var notes := Node2D.new()
-	notes.name = "Notes"
-	add_child(notes)
 	for note_id in LoreDb.ordered_notes:
-		notes.add_child(NoteEntityScript.create(note_id))
+		_note_layer.add_child(NoteEntityScript.create(note_id))
 
 ## Terrain name -> atlas column (matches _build_terrain).
 const TERRAIN_INDEX := {"grass": 0, "dirt": 1, "rock": 2, "water": 3}
@@ -543,6 +562,113 @@ func _build_prompt(hud: CanvasLayer) -> void:
 	hud.add_child(prompt)
 	EventBus.interaction_prompt.connect(func(text: String) -> void: prompt.text = text)
 
+## --- Save / load (Milestone 12) ---
+
+func save_to_disk() -> void:
+	if SaveService.write(gather_save()):
+		EventBus.notice.emit("Game saved")
+
+func load_from_disk() -> void:
+	if SaveService.request_load():
+		get_tree().reload_current_scene()
+	else:
+		EventBus.notice.emit("No save to load")
+
+## Serialize the full simulation state into a versioned, JSON-friendly dict.
+func gather_save() -> Dictionary:
+	return {
+		"seed": int(Balance.data["world_seed"]),
+		"clock": Sim.clock.total_minutes,
+		"weather": {"state": Env.weather.current, "timer": Env.weather.minutes_until_change},
+		"player": {
+			"pos": [player.global_position.x, player.global_position.y],
+			"vitals": vitals.save(),
+			"inventory": inventory.save(),
+			"crafting": crafting.save(),
+			"skills": player.skills.save(),
+			"quests": player.quests.save(),
+			"dialogue": player.dialogue.save(),
+			"story": player.story.save(),
+		},
+		"buildings": build.save(),
+		"nodes": _save_nodes(),
+		"traps": _save_traps(),
+		"pickups": _save_pickups(),
+	}
+
+## Restore the world + player from a saved snapshot.
+func apply_save(data: Dictionary) -> void:
+	Sim.clock.total_minutes = int(data.get("clock", Sim.clock.total_minutes))
+	var weather: Dictionary = data.get("weather", {})
+	if weather.has("state"):
+		Env.weather.current = String(weather["state"])
+		Env.weather.minutes_until_change = int(weather.get("timer", 60))
+
+	var pdata: Dictionary = data.get("player", {})
+	var pos: Array = pdata.get("pos", [0, 0])
+	player.global_position = Vector2(float(pos[0]), float(pos[1]))
+	vitals.load_save(pdata.get("vitals", {}))
+	inventory.load_save(pdata.get("inventory", {}))
+	crafting.load_save(pdata.get("crafting", {}))
+	player.skills.load_save(pdata.get("skills", {}))
+	player.quests.load_save(pdata.get("quests", {}))
+	player.dialogue.load_save(pdata.get("dialogue", {}))
+	player.story.load_save(pdata.get("story", {}))
+
+	build.restore(data.get("buildings", []))
+	for record: Dictionary in data.get("nodes", []):
+		var p: Array = record["pos"]
+		var node := ResourceNodeEntityScript.create(
+				String(record["node_id"]), Vector2(float(p[0]), float(p[1])), "load_%d" % _trap_counter)
+		_trap_counter += 1
+		_nodes.add_child(node)
+		if node.harvest_node != null and record.has("state"):
+			node.harvest_node.load_data(record["state"])
+			node._refresh_visual()
+	for record: Dictionary in data.get("traps", []):
+		var p: Array = record["pos"]
+		var trap := TrapEntityScript.create("snare_trap", Vector2(float(p[0]), float(p[1])), str(_trap_counter))
+		_trap_counter += 1
+		trap.trap.state = int(record.get("state", 0))
+		trap.trap.elapsed = int(record.get("elapsed", 0))
+		trap.trap.caught_loot = record.get("caught_loot", {})
+		_nodes.add_child(trap)
+	for record: Dictionary in data.get("pickups", []):
+		var p: Array = record["pos"]
+		_add_pickup(String(record["item_id"]), int(record["qty"]), Vector2(float(p[0]), float(p[1])))
+	EventBus.notice.emit("Game loaded")
+
+func _save_nodes() -> Array:
+	var out: Array = []
+	for child in _nodes.get_children():
+		var node := child as ResourceNodeEntity
+		if node == null:
+			continue
+		var record := {"node_id": node.node_id, "pos": [node.position.x, node.position.y]}
+		if node.harvest_node != null:
+			record["state"] = node.harvest_node.to_data()
+		out.append(record)
+	return out
+
+func _save_traps() -> Array:
+	var out: Array = []
+	for child in _nodes.get_children():
+		var trap := child as TrapEntity
+		if trap == null:
+			continue
+		out.append({"pos": [trap.position.x, trap.position.y], "state": trap.trap.state,
+				"elapsed": trap.trap.elapsed, "caught_loot": trap.trap.caught_loot})
+	return out
+
+func _save_pickups() -> Array:
+	var out: Array = []
+	for child in _pickups.get_children():
+		var pickup := child as Pickup
+		if pickup != null:
+			out.append({"item_id": pickup.item_id, "qty": pickup.qty,
+					"pos": [pickup.position.x, pickup.position.y]})
+	return out
+
 ## Bed sleep: accelerate time and wake at first light (or once fully rested).
 func _begin_bed_sleep() -> void:
 	if _sleeping_in_bed:
@@ -564,6 +690,11 @@ func _on_world_minute(_minutes: int) -> void:
 		Sim.time_scale = TIME_SCALES[_timescale_index]
 		if vitals.state.alive:
 			EventBus.notice.emit("You wake at first light")
+
+## Autosave at each new day (skipped during the headless smoke test).
+func _on_day_autosave(_day: int) -> void:
+	if not _smoke_test and vitals.state.alive:
+		SaveService.write(gather_save())
 
 func _on_player_died() -> void:
 	death_overlay.visible = true
@@ -808,6 +939,21 @@ func _smoke_test_inventory() -> void:
 	print("[smoke] chose ending -> ending_change flag: %s, ended: %s" % [
 			quests.flags.has_flag("ending_change"), story.ended])
 	assert(story.ended and quests.flags.has_flag("ending_change"), "choosing an ending ends the run")
+
+	# --- M12: full state serializes to disk and reads back intact ---
+	vitals.state.calories = 1234.0
+	skills.system.add_xp("gathering", 10)
+	var snapshot := gather_save()
+	SaveService.write(snapshot)
+	var reread := SaveService.read()
+	print("[smoke] saved -> version %d, reread calories %.0f, gathering xp %d, buildings %d" % [
+			int(reread.get("version", -1)),
+			float(reread["player"]["vitals"]["calories"]),
+			int(reread["player"]["skills"]["gathering"]),
+			(reread["buildings"] as Array).size()])
+	assert(int(reread.get("version", -1)) == SaveService.SAVE_VERSION, "save is versioned")
+	assert(int(float(reread["player"]["vitals"]["calories"])) == 1234, "vitals persist through disk")
+	assert(reread["player"]["quests"]["flags"]["flags"].has("ending_change"), "story flags persist")
 
 ## Smoke helper: visible index of the current dialogue choice starting with a
 ## prefix, or -1 if none is available.

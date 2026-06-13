@@ -145,6 +145,21 @@ func damage_equipped_tool(amount: int = 1) -> void:
 func total_insulation_c() -> float:
 	return equipment.total_insulation_c()
 
+## --- Save/load ---
+
+func save() -> Dictionary:
+	return {
+		"inventory": inventory.to_data(),
+		"equipment": equipment.to_data(),
+		"tool_durability": tool_durability.duplicate(),
+	}
+
+func load_save(data: Dictionary) -> void:
+	inventory.load_data(data.get("inventory", []))
+	equipment.load_data(data.get("equipment", {}))
+	tool_durability = (data.get("tool_durability", {}) as Dictionary).duplicate()
+	_emit_changed()
+
 ## Movement/drain penalty from how loaded the pack is.
 func encumbrance_factors() -> Dictionary:
 	return Encumbrance.factors(inventory.weight_fraction(), Balance.data["inventory"])

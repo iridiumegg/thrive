@@ -84,6 +84,13 @@ func ambient_c() -> float:
 		return Env.ambient_c_at(_player.global_position)
 	return Env.base_ambient_c()
 
+func save() -> Dictionary:
+	return state.to_data()
+
+func load_save(data: Dictionary) -> void:
+	state.load_data(data)
+	EventBus.vitals_changed.emit(state)
+
 ## --- Debug actions (stand-ins until food/water items exist) ---
 
 func debug_eat() -> void:

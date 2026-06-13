@@ -36,3 +36,20 @@ func active_affliction_ids() -> Array[String]:
 		if afflictions[id]["active"]:
 			out.append(id)
 	return out
+
+func to_data() -> Dictionary:
+	return {
+		"calories": calories, "hydration": hydration, "energy": energy,
+		"warmth": warmth, "condition": condition, "alive": alive,
+		"afflictions": afflictions.duplicate(true),
+	}
+
+func load_data(data: Dictionary) -> void:
+	calories = float(data.get("calories", calories))
+	hydration = float(data.get("hydration", hydration))
+	energy = float(data.get("energy", energy))
+	warmth = float(data.get("warmth", warmth))
+	condition = float(data.get("condition", condition))
+	alive = bool(data.get("alive", true))
+	if data.has("afflictions"):
+		afflictions = (data["afflictions"] as Dictionary).duplicate(true)

@@ -26,6 +26,7 @@ godot --path .
 | J | Open / close the quest journal |
 | Left-click slot | Use food / equip gear / read a blueprint |
 | Right-click slot | Drop one |
+| F9 / F10 | Save / load game |
 | F1 | Eat (debug quick-restore) |
 | F2 | Drink (debug quick-restore) |
 | F3 | Toggle sleep (time accelerates while asleep) |
@@ -139,7 +140,13 @@ Afflictions (hypothermia, starvation, dehydration, exhaustion) are defined in
       codex); the main arc runs to a finale (What They Left Behind → The
       Outpost's Fate); three branching endings (Leave / Stay / Change) gated by
       what the player did and learned, with Leave always reachable.
-- [ ] M12 — Save/load
+- [x] **M12 — Save/load:** versioned, human-readable JSON saves of the full
+      simulation — vitals/afflictions, inventory/equipment/durability, skills,
+      crafting queue + known recipes, quests + story flags, relationships,
+      lore codex, clock/weather, placed structures (+ chest contents), node
+      depletion/respawn, traps, and ground items. Autosave on day change +
+      manual save/load; migration-ready schema.
+- [ ] M13 — Polish
 - [ ] M10 — NPCs & dialogue
 - [ ] M11 — Story
 - [ ] M12 — Save/load

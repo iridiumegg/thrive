@@ -35,7 +35,7 @@ func _process(_delta: float) -> void:
 	lines.append("Speed x%.0f   FPS %d" % [Sim.time_scale, Engine.get_frames_per_second()])
 	lines.append("")
 	lines.append("[WASD] move [E] interact/talk [Q] trap [Tab] pack [C] craft [B] build [J] journal")
-	lines.append("[F1] eat  [F2] drink  [F3] sleep  [F4] campfire  [F5] time speed")
+	lines.append("[F1] eat  [F2] drink  [F3] sleep  [F4] campfire  [F5] speed  [F9] save  [F10] load")
 	_label.text = "\n".join(lines)
 
 func _find_vitals() -> VitalsComponent:

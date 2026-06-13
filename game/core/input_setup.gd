@@ -22,6 +22,8 @@ static func ensure_actions() -> void:
 	_add_key_action("debug_sleep", [KEY_F3])
 	_add_key_action("debug_fire", [KEY_F4])
 	_add_key_action("debug_timescale", [KEY_F5])
+	_add_key_action("save_game", [KEY_F9])
+	_add_key_action("load_game", [KEY_F10])
 	_add_key_action("restart", [KEY_R])
 
 static func _add_key_action(action: StringName, physical_keys: Array) -> void:

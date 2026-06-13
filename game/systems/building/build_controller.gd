@@ -139,6 +139,30 @@ func _spawn(building_id: String, cell: Vector2i) -> BuildingEntity:
 	_container.add_child(entity)
 	return entity
 
+## --- Save/load ---
+
+func save() -> Array:
+	var out: Array = []
+	for cell: Vector2i in _cells:
+		var entity: BuildingEntity = _cells[cell]
+		var record := {"building_id": entity.building_id, "cell": [cell.x, cell.y]}
+		if entity.storage != null:
+			record["storage"] = entity.storage.to_data()
+		out.append(record)
+	return out
+
+## Rebuild structures from saved data (replaces whatever is placed).
+func restore(data: Array) -> void:
+	for cell: Vector2i in _cells.keys():
+		_cells[cell].queue_free()
+	_cells.clear()
+	grid.occupied.clear()
+	for record: Dictionary in data:
+		var c: Array = record["cell"]
+		var entity := _spawn(String(record["building_id"]), Vector2i(int(c[0]), int(c[1])))
+		if entity.storage != null and record.has("storage"):
+			entity.storage.load_data(record["storage"])
+
 func _counts() -> Dictionary:
 	var counts: Dictionary = {}
 	for stack: Inventory.Stack in _player.inventory.inventory.slots:

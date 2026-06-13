@@ -57,6 +57,12 @@ func _on_day_advanced(_day: int) -> void:
 func award(skill_id: String, amount: int) -> void:
 	_award(skill_id, amount)
 
+func save() -> Dictionary:
+	return system.to_data()
+
+func load_save(data: Dictionary) -> void:
+	system.load_data(data)
+
 func _award(skill_id: String, amount: int) -> void:
 	var result := system.add_xp(skill_id, amount)
 	EventBus.skill_xp_gained.emit(skill_id, amount)

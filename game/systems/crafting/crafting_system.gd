@@ -109,3 +109,19 @@ func tick(minutes: int) -> Array[Dictionary]:
 ## Cancel the active job and return it (so the caller can refund inputs).
 func cancel_active() -> Job:
 	return queue.pop_front() if not queue.is_empty() else null
+
+## --- Save/load (the in-progress queue) ---
+
+func to_data() -> Array:
+	var out: Array = []
+	for job: Job in queue:
+		out.append({"recipe_id": job.recipe_id, "remaining": job.remaining,
+				"total": job.total, "quality": job.quality})
+	return out
+
+func load_data(data: Array) -> void:
+	queue.clear()
+	for entry: Dictionary in data:
+		var job := Job.new(String(entry["recipe_id"]), int(entry["total"]), String(entry["quality"]))
+		job.remaining = int(entry["remaining"])
+		queue.append(job)

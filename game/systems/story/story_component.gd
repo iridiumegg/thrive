@@ -38,6 +38,15 @@ func read_document(note_id: String) -> void:
 func has_read(note_id: String) -> bool:
 	return note_id in codex
 
+func save() -> Dictionary:
+	return {"codex": Array(codex), "ended": ended}
+
+func load_save(data: Dictionary) -> void:
+	codex.clear()
+	for id: String in data.get("codex", []):
+		codex.append(String(id))
+	ended = bool(data.get("ended", false))
+
 ## --- Endings ---
 
 func _on_quest_activated(quest_id: String) -> void:

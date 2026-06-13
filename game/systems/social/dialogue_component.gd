@@ -70,6 +70,15 @@ func close() -> void:
 	_current_node = ""
 	EventBus.dialogue_ended.emit()
 
+## --- Save/load ---
+
+func save() -> Dictionary:
+	return {"relationships": relationships.to_data(), "greeted": _greeted_today.duplicate()}
+
+func load_save(data: Dictionary) -> void:
+	relationships.load_data(data.get("relationships", {}))
+	_greeted_today = (data.get("greeted", {}) as Dictionary).duplicate()
+
 ## --- Internals ---
 
 func _emit_node() -> void:

@@ -22,6 +22,7 @@ BuildDb="*res://game/core/build_db.gd"
 QuestDb="*res://game/core/quest_db.gd"
 NpcDb="*res://game/core/npc_db.gd"
 LoreDb="*res://game/core/lore_db.gd"
+SaveService="*res://game/core/save_service.gd"
 Sim="*res://game/core/simulation.gd"
 Env="*res://game/core/env.gd"
 

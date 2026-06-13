@@ -172,6 +172,16 @@ func salvage_slot(index: int) -> bool:
 	EventBus.notice.emit("Salvaged %s" % def.name)
 	return true
 
+## --- Save/load ---
+
+func save() -> Dictionary:
+	return {"known": known_recipes.duplicate(), "queue": system.to_data()}
+
+func load_save(data: Dictionary) -> void:
+	known_recipes = (data.get("known", {}) as Dictionary).duplicate()
+	system.load_data(data.get("queue", []))
+	EventBus.crafting_queue_changed.emit(system.queue)
+
 ## --- Helpers ---
 
 func _display(recipe_id: String) -> String:

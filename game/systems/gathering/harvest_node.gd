@@ -48,6 +48,13 @@ func harvest(tool_tier: int, extra_bonus: int = 0) -> Dictionary:
 		respawn_remaining = int(def.get("respawn_minutes", 0))
 	return loot
 
+func to_data() -> Dictionary:
+	return {"harvests_remaining": harvests_remaining, "respawn_remaining": respawn_remaining}
+
+func load_data(data: Dictionary) -> void:
+	harvests_remaining = int(data.get("harvests_remaining", harvests_remaining))
+	respawn_remaining = int(data.get("respawn_remaining", respawn_remaining))
+
 ## Advance time; returns true on the minute the node finishes regrowing.
 func tick(minutes: int) -> bool:
 	if not is_depleted() or respawn_remaining <= 0:
