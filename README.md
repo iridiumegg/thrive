@@ -22,6 +22,7 @@ godot --path .
 | Q | Deploy a snare trap (consumes a trap kit + bait) |
 | Tab / I | Open / close the inventory & equipment screen |
 | C | Open / close the crafting screen |
+| B | Build mode (place stations, heat, shelter, storage, beds) |
 | Left-click slot | Use food / equip gear / read a blueprint |
 | Right-click slot | Drop one |
 | F1 | Eat (debug quick-restore) |
@@ -110,7 +111,11 @@ Afflictions (hypothermia, starvation, dehydration, exhaustion) are defined in
       with rain/snow chosen by temperature and season-weighted odds; biome map
       (handcrafted outpost core + seeded surrounding regions) shifting ambient
       temperature and gating resource spawns; day/night + weather lighting.
-- [ ] M7 — Building
+- [x] **M7 — Building:** grid-snapped placement with a ghost preview, material
+      costs, and pick-up/refund; one BuildingEntity covers stations, heat
+      sources, shelter, storage chests, and beds; shelter + heat cancel wind
+      chill/wetness; beds sleep through to morning; storage transfer UI. The
+      outpost's stations are now these placeables.
 - [ ] M8 — Skills & progression
 - [ ] M9 — Quests
 - [ ] M10 — NPCs & dialogue

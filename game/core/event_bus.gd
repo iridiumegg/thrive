@@ -71,3 +71,18 @@ signal weather_changed(state: String, display_name: String)
 
 ## Emitted when the player crosses into a different biome (biome id + name).
 signal biome_entered(biome_id: String, display_name: String)
+
+## --- Building (Milestone 7) ---
+
+## Emitted when a structure is placed / removed (for quests + bookkeeping).
+signal structure_built(buildable_id: String)
+signal structure_removed(buildable_id: String)
+
+## Emitted when build mode is toggled, so the HUD can show/hide the palette.
+signal build_mode_changed(active: bool)
+
+## Request to open a storage container's transfer screen.
+signal storage_opened(container: RefCounted)
+
+## Request to sleep through to morning (from a bed).
+signal sleep_requested

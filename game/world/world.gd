@@ -14,11 +14,13 @@ const CraftingComponentScript := preload("res://game/systems/crafting/crafting_c
 const PickupScript := preload("res://game/entities/pickup.gd")
 const ResourceNodeEntityScript := preload("res://game/entities/resource_node_entity.gd")
 const TrapEntityScript := preload("res://game/entities/trap_entity.gd")
-const StationEntityScript := preload("res://game/entities/station_entity.gd")
+const BuildControllerScript := preload("res://game/systems/building/build_controller.gd")
 const DebugHudScript := preload("res://game/ui/debug_hud.gd")
 const VitalsHudScript := preload("res://game/ui/vitals_hud.gd")
 const InventoryScreenScript := preload("res://game/ui/inventory_screen.gd")
 const CraftingScreenScript := preload("res://game/ui/crafting_screen.gd")
+const BuildPaletteScript := preload("res://game/ui/build_palette.gd")
+const StorageScreenScript := preload("res://game/ui/storage_screen.gd")
 
 const SPAWNS_PATH := "res://game/data/world_spawns.json"
 
@@ -43,7 +45,9 @@ var vitals: VitalsComponent
 var inventory: InventoryComponent
 var gathering: GatheringComponent
 var crafting: CraftingComponent
+var build: BuildController
 var death_overlay: CenterContainer
+var _sleeping_in_bed := false
 var _terrain: TileMapLayer
 var _pickups: Node2D
 var _nodes: Node2D
@@ -62,10 +66,13 @@ func _ready() -> void:
 	_build_terrain()
 	_build_lighting()
 	_spawn_player()
+	_setup_build()
 	_build_hud()
 	_spawn_world_items()
 	EventBus.player_died.connect(_on_player_died)
 	EventBus.item_dropped.connect(_on_item_dropped)
+	EventBus.sleep_requested.connect(_begin_bed_sleep)
+	EventBus.sim_minute.connect(_on_world_minute)
 	if "--smoke-test" in OS.get_cmdline_user_args():
 		_start_smoke_test()
 
@@ -75,7 +82,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if not vitals.state.alive:
 		return
-	if event.is_action_pressed("interact"):
+	if event.is_action_pressed("toggle_build"):
+		build.toggle()
+	elif event.is_action_pressed("interact"):
 		gathering.interact()
 	elif event.is_action_pressed("deploy_trap"):
 		_deploy_trap()
@@ -281,9 +290,19 @@ const STATION_LAYOUT := [
 	["tailoring_bench", Vector2(80, 70)],
 ]
 
+func _setup_build() -> void:
+	var buildings := Node2D.new()
+	buildings.name = "Buildings"
+	add_child(buildings)
+	build = BuildControllerScript.new()
+	build.name = "BuildController"
+	build.setup(player, buildings, func(cell: Vector2i) -> bool: return _is_land(cell))
+	add_child(build)
+
+## The surviving outpost structures, pre-placed at no cost.
 func _spawn_stations() -> void:
 	for entry in STATION_LAYOUT:
-		_nodes.add_child(StationEntityScript.create(entry[0], entry[1]))
+		build.place_prebuilt(entry[0], entry[1])
 
 ## Terrain name -> atlas column (matches _build_terrain).
 const TERRAIN_INDEX := {"grass": 0, "dirt": 1, "rock": 2, "water": 3}
@@ -389,6 +408,16 @@ func _build_hud() -> void:
 	hud.add_child(crafting_screen)
 	crafting_screen.bind(crafting)
 
+	var build_palette: Control = BuildPaletteScript.new()
+	build_palette.name = "BuildPalette"
+	hud.add_child(build_palette)
+	build_palette.bind(build)
+
+	var storage_screen: Control = StorageScreenScript.new()
+	storage_screen.name = "StorageScreen"
+	hud.add_child(storage_screen)
+	storage_screen.bind_pack(inventory.inventory)
+
 	_build_toast(hud)
 	_build_prompt(hud)
 
@@ -446,6 +475,28 @@ func _build_prompt(hud: CanvasLayer) -> void:
 	prompt.add_theme_constant_override("shadow_offset_y", 1)
 	hud.add_child(prompt)
 	EventBus.interaction_prompt.connect(func(text: String) -> void: prompt.text = text)
+
+## Bed sleep: accelerate time and wake at first light (or once fully rested).
+func _begin_bed_sleep() -> void:
+	if _sleeping_in_bed:
+		return
+	_sleeping_in_bed = true
+	vitals.asleep = true
+	Sim.time_scale = SLEEP_TIME_SCALE
+	EventBus.notice.emit("Sleeping…")
+
+const WAKE_HOUR := 6
+
+func _on_world_minute(_minutes: int) -> void:
+	if not _sleeping_in_bed:
+		return
+	var rested := vitals.system.need_fraction(vitals.state, "energy") >= 0.99
+	if Sim.clock.hour() == WAKE_HOUR or rested or not vitals.state.alive:
+		_sleeping_in_bed = false
+		vitals.asleep = false
+		Sim.time_scale = TIME_SCALES[_timescale_index]
+		if vitals.state.alive:
+			EventBus.notice.emit("You wake at first light")
 
 func _on_player_died() -> void:
 	death_overlay.visible = true
@@ -578,6 +629,32 @@ func _smoke_test_inventory() -> void:
 	print("[smoke] storm env -> wind_chill %.1f, wetness %.1f" % [
 			env["wind_chill_c"], env["wetness"]])
 	assert(env["wind_chill_c"] > 0.0 and env["wetness"] > 0.0, "storm must chill and wet the player")
+
+	# --- M7: build a heat source + shelter, confirm it cancels the storm ---
+	inventory.pickup("branch", 3)
+	inventory.pickup("stone", 2)
+	var cell := build.grid.world_to_cell(player.global_position + Vector2(0, 40))
+	build.selected_id = "campfire"
+	build._place(cell)
+	var built := build._cells.has(cell)
+	print("[smoke] placed campfire: %s (structures at outpost incl. prebuilt)" % built)
+	assert(built, "campfire should place when affordable on land")
+	# Simulate standing next to it: heat + shelter applied like proximity would.
+	player.nearby_heat_c = 16.0
+	player.nearby_shelter = 1
+	var sheltered_env := vitals._build_env()
+	print("[smoke] beside fire in storm -> heat %.0f, wind_chill %.1f, wetness %.1f" % [
+			sheltered_env["heat_source_c"], sheltered_env["wind_chill_c"], sheltered_env["wetness"]])
+	assert(sheltered_env["wind_chill_c"] == 0.0 and sheltered_env["wetness"] == 0.0,
+			"shelter/heat must cancel wind chill and wetness")
+
+	# Storage round-trip through a chest inventory.
+	var chest := Inventory.new(24, 9999.0, ItemDb.catalog)
+	inventory.pickup("stone", 5)
+	var moved := chest.add("stone", 5)
+	inventory.inventory.remove("stone", 5)
+	print("[smoke] stored %d stone in chest -> chest has %d" % [moved, chest.count("stone")])
+	assert(chest.count("stone") == 5, "storage should hold deposited items")
 
 func _on_smoke_minute(minutes: int) -> void:
 	_smoke_minutes += minutes

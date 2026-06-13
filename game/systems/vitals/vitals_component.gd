@@ -60,13 +60,17 @@ func _build_env() -> Dictionary:
 		position = _player.global_position
 	var base_activity := float(vitals_cfg["activity_multiplier_moving"]) if moving \
 			else float(vitals_cfg["activity_multiplier_idle"])
-	# Weather adds wind chill and wetness; shelter (indoors) cancels both.
+	# Weather adds wind chill and wetness; shelter / heat sources cancel both.
 	var w := Env.weather_effects()
-	var sheltered := campfire_on  # near a heat source counts as sheltered for now
+	var heat := float(climate["campfire_bonus_c"]) if campfire_on else 0.0
+	var sheltered := campfire_on
+	if _player != null:
+		heat += _player.nearby_heat_c
+		sheltered = sheltered or _player.is_sheltered()
 	return {
 		"ambient_c": ambient_c(),
 		"insulation_c": insulation,
-		"heat_source_c": float(climate["campfire_bonus_c"]) if campfire_on else 0.0,
+		"heat_source_c": heat,
 		"wind_chill_c": 0.0 if sheltered else float(w["wind_chill_c"]),
 		"wetness": 0.0 if sheltered else float(w["wetness"]),
 		"activity": base_activity * encumbrance_activity,

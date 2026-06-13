@@ -13,6 +13,14 @@ var inventory: InventoryComponent
 var gathering: GatheringComponent
 var crafting: CraftingComponent
 
+## Environmental warmth/shelter from nearby built structures (updated by
+## BuildingEntity proximity). Heat sources sum; any shelter piece counts.
+var nearby_heat_c: float = 0.0
+var nearby_shelter: int = 0
+
+func is_sheltered() -> bool:
+	return nearby_shelter > 0 or nearby_heat_c > 0.0
+
 func _physics_process(_delta: float) -> void:
 	if vitals != null and (not vitals.state.alive or vitals.asleep):
 		velocity = Vector2.ZERO

@@ -1,0 +1,80 @@
+[
+  {
+    "id": "campfire",
+    "name": "Campfire",
+    "category": "Heat",
+    "cost": [ { "item": "branch", "qty": 3 }, { "item": "stone", "qty": 2 } ],
+    "station": "campfire",
+    "heat_c": 16.0,
+    "color": [196, 120, 60]
+  },
+  {
+    "id": "fire_pit",
+    "name": "Fire Pit",
+    "category": "Heat",
+    "cost": [ { "item": "stone", "qty": 6 }, { "item": "wood_log", "qty": 2 } ],
+    "station": "campfire",
+    "heat_c": 22.0,
+    "color": [206, 110, 54]
+  },
+  {
+    "id": "workbench",
+    "name": "Workbench",
+    "category": "Stations",
+    "cost": [ { "item": "wood_plank", "qty": 4 } ],
+    "station": "workbench",
+    "color": [150, 120, 78]
+  },
+  {
+    "id": "forge",
+    "name": "Forge",
+    "category": "Stations",
+    "cost": [ { "item": "stone", "qty": 10 }, { "item": "iron_ingot", "qty": 2 } ],
+    "station": "forge",
+    "heat_c": 10.0,
+    "color": [150, 90, 70]
+  },
+  {
+    "id": "tailoring_bench",
+    "name": "Tailoring Bench",
+    "category": "Stations",
+    "cost": [ { "item": "wood_plank", "qty": 3 }, { "item": "cord", "qty": 4 } ],
+    "station": "tailoring_bench",
+    "color": [110, 120, 150]
+  },
+  {
+    "id": "storage_chest",
+    "name": "Storage Chest",
+    "category": "Utility",
+    "cost": [ { "item": "wood_plank", "qty": 4 } ],
+    "storage_slots": 24,
+    "color": [128, 100, 64]
+  },
+  {
+    "id": "bed",
+    "name": "Bedroll",
+    "category": "Utility",
+    "cost": [ { "item": "wood_plank", "qty": 2 }, { "item": "plant_fiber", "qty": 6 } ],
+    "bed": true,
+    "shelter": true,
+    "heat_c": 2.0,
+    "color": [120, 110, 138]
+  },
+  {
+    "id": "lean_to",
+    "name": "Lean-To",
+    "category": "Shelter",
+    "cost": [ { "item": "wood_log", "qty": 3 }, { "item": "cord", "qty": 4 } ],
+    "shelter": true,
+    "color": [96, 110, 92]
+  },
+  {
+    "id": "wall",
+    "name": "Timber Wall",
+    "category": "Shelter",
+    "cost": [ { "item": "wood_plank", "qty": 2 } ],
+    "shelter": true,
+    "solid": true,
+    "color": [120, 96, 66]
+  }
+]
