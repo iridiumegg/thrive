@@ -22,6 +22,7 @@ func _ready() -> void:
 	EventBus.recipe_crafted.connect(_on_recipe_crafted)
 	EventBus.structure_built.connect(_on_structure_built)
 	EventBus.day_advanced.connect(_on_day_advanced)
+	EventBus.creature_killed.connect(_on_creature_killed)
 
 func level(skill_id: String) -> int:
 	return system.level(skill_id)
@@ -52,6 +53,9 @@ func _on_structure_built(_buildable_id: String) -> void:
 
 func _on_day_advanced(_day: int) -> void:
 	_award("survival", int(_cfg["survive_day_xp"]))
+
+func _on_creature_killed(_creature_id: String) -> void:
+	_award("survival", int(Balance.data["combat"]["kill_survival_xp"]))
 
 ## Public XP award (used by quest rewards).
 func award(skill_id: String, amount: int) -> void:

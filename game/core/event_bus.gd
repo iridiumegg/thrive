@@ -130,3 +130,11 @@ signal ending_choices(endings: Array)
 
 ## An ending has been chosen — show it and wrap the run.
 signal ending_reached(ending_id: String, title: String, body: String)
+
+## --- Threats & combat (Milestone 14) ---
+
+## Emitted when a creature is killed (for hunting loot + survival XP + quests).
+signal creature_killed(creature_id: String)
+
+## Emitted when the player takes a wound from wildlife.
+signal player_wounded(creature_id: String, damage: float)

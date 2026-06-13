@@ -145,6 +145,23 @@ func test_death_at_zero_condition() -> void:
 	assert_false(state.alive)
 	assert_eq(state.condition, 0.0)
 
+func test_infection_is_externally_triggered_and_manually_cured() -> void:
+	var sys := _system()
+	var state := sys.new_state()
+	# It never self-triggers from a stat, even when everything's fine.
+	sys.tick(state, _warm_env(), 240)
+	assert_false("infection" in state.active_affliction_ids(), "infection won't appear on its own")
+	# A wound applies it directly; it then drains Condition until bandaged.
+	assert_true(sys.trigger_affliction(state, "infection"))
+	assert_true("infection" in state.active_affliction_ids())
+	var before := state.condition
+	sys.tick(state, _warm_env(), 60)
+	assert_lt(state.condition, before, "an untreated infection drains Condition")
+	assert_true("infection" in state.active_affliction_ids(), "and it doesn't auto-cure")
+	# Bandaging clears it.
+	assert_true(sys.cure_affliction(state, "infection"))
+	assert_false("infection" in state.active_affliction_ids())
+
 func test_eat_and_drink_clamp_at_max() -> void:
 	var sys := _system()
 	var state := sys.new_state()

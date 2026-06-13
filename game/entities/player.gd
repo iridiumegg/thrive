@@ -16,6 +16,7 @@ var skills: SkillsComponent
 var quests: QuestComponent
 var dialogue: DialogueComponent
 var story: StoryComponent
+var combat: CombatComponent
 
 ## Environmental warmth/shelter from nearby built structures (updated by
 ## BuildingEntity proximity). Heat sources sum; any shelter piece counts.
@@ -24,6 +25,9 @@ var nearby_shelter: int = 0
 
 func is_sheltered() -> bool:
 	return nearby_shelter > 0 or nearby_heat_c > 0.0
+
+func _ready() -> void:
+	add_to_group("player")
 
 func _physics_process(_delta: float) -> void:
 	if vitals != null and (not vitals.state.alive or vitals.asleep):

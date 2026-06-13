@@ -18,7 +18,8 @@ godot --path .
 | Input | Action |
 |-------|--------|
 | WASD / arrows | Move (walk over items to pick them up) |
-| E / Space | Interact: harvest a node, drink at a spring, work a trap |
+| E / Space | Interact: harvest a node, drink at a spring, work a trap, talk |
+| F | Attack the nearest creature in range |
 | Q | Deploy a snare trap (consumes a trap kit + bait) |
 | Tab / I | Open / close the inventory & equipment screen |
 | C | Open / close the crafting screen |
@@ -152,7 +153,13 @@ Afflictions (hypothermia, starvation, dehydration, exhaustion) are defined in
       the moment a need crosses critical; accessibility config (master volume,
       UI text scale wired into HUD readouts, colorblind-safe meter cues that
       already pair color with icon + label + position).
-- [ ] M14 — Threats/combat
+- [x] **M14 — Threats/combat:** survival-flavored wildlife with a pure
+      state-machine AI (idle/investigate/flee/attack); timid elk flee, nocturnal
+      frost wolves hunt near the cold biomes — but a fire deters them and
+      shelter makes you untargetable, so avoidance is first-class. Wounds feed
+      an externally-triggered infection affliction cured only by a crafted
+      bandage; swinging costs energy and scales with the equipped tool. Killing
+      wildlife drops meat/hide (the hunting loop) and grants survival XP.
 - [ ] M10 — NPCs & dialogue
 - [ ] M11 — Story
 - [ ] M12 — Save/load

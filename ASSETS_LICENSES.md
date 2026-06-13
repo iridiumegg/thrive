@@ -15,6 +15,7 @@ Acceptable licenses: CC0, CC-BY (with attribution), or original work.
 | Trap sprites | Generated procedurally at runtime (`game/entities/trap_entity.gd`) | Original (this project) | — |
 | Structure sprites | Generated procedurally at runtime (`game/entities/building_entity.gd`) | Original (this project) | — |
 | NPC sprites | Generated procedurally at runtime (`game/entities/npc_entity.gd`) | Original (this project) | — |
+| Wildlife sprites | Generated procedurally at runtime (`game/entities/wildlife_entity.gd`) | Original (this project) | — |
 
 | Sound effects & wind bed | Synthesised at runtime (`game/core/audio_service.gd`) | Original (this project) | — |
 

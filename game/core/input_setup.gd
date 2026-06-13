@@ -15,6 +15,7 @@ static func ensure_actions() -> void:
 	_add_key_action("toggle_build", [KEY_B])
 	_add_key_action("toggle_journal", [KEY_J])
 	_add_key_action("interact", [KEY_E, KEY_SPACE])
+	_add_key_action("attack", [KEY_F])
 	_add_key_action("deploy_trap", [KEY_Q])
 	# Debug actions — stand-ins until the real systems exist.
 	_add_key_action("debug_eat", [KEY_F1])

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "marsh_elk",
+    "name": "Marsh Elk",
+    "aggressive": false,
+    "detect_range": 78.0,
+    "attack_range": 0.0,
+    "flee_health": 0.5,
+    "speed": 54.0,
+    "damage": 0.0,
+    "max_health": 40.0,
+    "loot_table": "elk_loot",
+    "active": "day",
+    "biomes": ["meadow", "pinewood", "frostmarsh"],
+    "color": [124, 102, 80]
+  },
+  {
+    "id": "frost_wolf",
+    "name": "Frost Wolf",
+    "aggressive": true,
+    "detect_range": 120.0,
+    "attack_range": 18.0,
+    "flee_health": 0.25,
+    "speed": 72.0,
+    "damage": 8.0,
+    "max_health": 55.0,
+    "loot_table": "wolf_loot",
+    "active": "night",
+    "biomes": ["stony_highland", "frostmarsh"],
+    "color": [156, 162, 170]
+  }
+]

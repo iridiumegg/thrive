@@ -26,5 +26,9 @@
     { "node": "boulder", "count": 14 },
     { "node": "ore_vein", "count": 6 },
     { "node": "spring", "count": 5 }
+  ],
+  "wildlife": [
+    { "creature": "marsh_elk", "count": 8 },
+    { "creature": "frost_wolf", "count": 6 }
   ]
 }

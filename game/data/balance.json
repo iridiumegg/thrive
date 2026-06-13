@@ -22,6 +22,15 @@
     "harvest_energy_cost": 1.5,
     "xp_per_harvest": 4
   },
+  "combat": {
+    "player_base_damage": 6.0,
+    "tool_damage_per_tier": 9.0,
+    "energy_per_swing": 2.5,
+    "melee_range": 28.0,
+    "wound_infection_chance": 0.35,
+    "attack_cooldown_seconds": 1.2,
+    "kill_survival_xp": 12
+  },
   "skills": {
     "lines": ["gathering", "crafting", "smithing", "cooking", "tailoring", "building", "survival"],
     "category_skill": {

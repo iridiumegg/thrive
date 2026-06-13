@@ -108,19 +108,24 @@ func _update_afflictions(state: VitalsState, events: Array[String]) -> float:
 		var st: Dictionary = state.afflictions[id]
 		if st["active"]:
 			var cure: Dictionary = def["cure"]
-			if state.get_stat(cure["stat"]) > float(cure["above"]):
-				st["cure_minutes"] = float(st["cure_minutes"]) + 1.0
-				if st["cure_minutes"] >= maxf(1.0, float(cure["sustained_minutes"])):
-					st["active"] = false
-					st["trigger_minutes"] = 0.0
+			# Manual-cure afflictions (e.g. infection) only clear via cure_affliction().
+			if not bool(cure.get("manual", false)):
+				if state.get_stat(cure["stat"]) > float(cure["above"]):
+					st["cure_minutes"] = float(st["cure_minutes"]) + 1.0
+					if st["cure_minutes"] >= maxf(1.0, float(cure["sustained_minutes"])):
+						st["active"] = false
+						st["trigger_minutes"] = 0.0
+						st["cure_minutes"] = 0.0
+						events.append("affliction_ended:" + id)
+						continue
+				else:
 					st["cure_minutes"] = 0.0
-					events.append("affliction_ended:" + id)
-					continue
-			else:
-				st["cure_minutes"] = 0.0
 			total_drain += float(def["effects"].get("condition_drain_per_hour", 0.0))
 		else:
 			var trig: Dictionary = def["trigger"]
+			# External-trigger afflictions are activated by gameplay, not by a stat.
+			if bool(trig.get("external", false)):
+				continue
 			if state.get_stat(trig["stat"]) < float(trig["below"]):
 				st["trigger_minutes"] = float(st["trigger_minutes"]) + 1.0
 				if st["trigger_minutes"] >= maxf(1.0, float(trig["sustained_minutes"])):
@@ -131,6 +136,25 @@ func _update_afflictions(state: VitalsState, events: Array[String]) -> float:
 			else:
 				st["trigger_minutes"] = 0.0
 	return total_drain
+
+## Activate an affliction from gameplay (e.g. a wound causing infection).
+## Returns true if it newly activated.
+func trigger_affliction(state: VitalsState, id: String) -> bool:
+	if not state.afflictions.has(id) or state.afflictions[id]["active"]:
+		return false
+	state.afflictions[id]["active"] = true
+	state.afflictions[id]["cure_minutes"] = 0.0
+	return true
+
+## Clear an affliction (e.g. bandaging an infected wound). Returns true if it
+## was active.
+func cure_affliction(state: VitalsState, id: String) -> bool:
+	if not state.afflictions.has(id) or not state.afflictions[id]["active"]:
+		return false
+	state.afflictions[id]["active"] = false
+	state.afflictions[id]["trigger_minutes"] = 0.0
+	state.afflictions[id]["cure_minutes"] = 0.0
+	return true
 
 ## Movement-speed multiplier from active afflictions (product of all penalties).
 func speed_multiplier(state: VitalsState) -> float:

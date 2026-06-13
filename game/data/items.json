@@ -311,6 +311,16 @@
     "description": "Layered hide and fiber, cut to seal in every scrap of heat. Master tailoring."
   },
   {
+    "id": "bandage",
+    "name": "Clean Bandage",
+    "category": "material",
+    "stack_size": 10,
+    "weight": 0.1,
+    "value": 6,
+    "tags": ["remedy", "medical"],
+    "description": "Boiled fiber and cord. Cleans and binds a wound before it turns."
+  },
+  {
     "id": "garment_pattern",
     "name": "Worn Garment Pattern",
     "category": "material",

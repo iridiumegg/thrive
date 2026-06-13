@@ -8,10 +8,13 @@ extends Node
 const NODES_PATH := "res://game/data/resource_nodes.json"
 const LOOT_PATH := "res://game/data/loot_tables.json"
 const TRAPS_PATH := "res://game/data/traps.json"
+const WILDLIFE_PATH := "res://game/data/wildlife.json"
 
-var node_defs: Dictionary = {}   # node_id -> Dictionary
-var loot_tables: Dictionary = {} # table_id -> Dictionary
-var trap_defs: Dictionary = {}   # trap_id -> Dictionary
+var node_defs: Dictionary = {}     # node_id -> Dictionary
+var loot_tables: Dictionary = {}   # table_id -> Dictionary
+var trap_defs: Dictionary = {}     # trap_id -> Dictionary
+var wildlife_defs: Dictionary = {} # creature_id -> Dictionary
+var wildlife_ordered: Array[String] = []
 
 func _ready() -> void:
 	for entry: Dictionary in Balance.load_json(NODES_PATH):
@@ -19,6 +22,9 @@ func _ready() -> void:
 	loot_tables = Balance.load_json(LOOT_PATH)
 	for entry: Dictionary in Balance.load_json(TRAPS_PATH):
 		trap_defs[String(entry["id"])] = entry
+	for entry: Dictionary in Balance.load_json(WILDLIFE_PATH):
+		wildlife_defs[String(entry["id"])] = entry
+		wildlife_ordered.append(String(entry["id"]))
 	assert(not node_defs.is_empty(), "resource_nodes.json failed to load")
 
 func loot_table(table_id: String) -> Dictionary:

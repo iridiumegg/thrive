@@ -50,10 +50,23 @@ func use_slot(index: int) -> void:
 	var def := ItemDb.get_def(stack.item_id)
 	if def.teaches_recipe != "":
 		_read_blueprint(index, def)
+	elif def.has_tag("remedy"):
+		_apply_remedy(index, def)
 	elif def.is_edible():
 		_consume(index, def)
 	elif def.is_equippable():
 		_equip_from_slot(index, def)
+
+## A bandage/remedy cleans an infected wound and is consumed.
+func _apply_remedy(index: int, def: ItemDef) -> void:
+	if _vitals != null and _vitals.system.cure_affliction(_vitals.state, "infection"):
+		inventory.remove_slot(index, 1)
+		EventBus.affliction_ended.emit("infection")
+		EventBus.vitals_changed.emit(_vitals.state)
+		EventBus.notice.emit("You clean and bind the wound")
+		EventBus.inventory_changed.emit(inventory)
+	else:
+		EventBus.notice.emit("No wound to bind")
 
 ## Reading a blueprint learns its recipe and consumes the page (once).
 func _read_blueprint(index: int, def: ItemDef) -> void:

@@ -34,5 +34,18 @@
       { "item": "small_hide", "weight": 2 }
     ] },
     "rare": [ { "item": "small_hide", "chance": 0.2 } ]
+  },
+  "elk_loot": {
+    "guaranteed": [
+      { "item": "raw_meat", "min": 2, "max": 3 },
+      { "item": "small_hide", "min": 1, "max": 2 }
+    ]
+  },
+  "wolf_loot": {
+    "guaranteed": [ { "item": "raw_meat", "min": 1, "max": 2 } ],
+    "rolls": { "count": 1, "entries": [
+      { "item": "small_hide", "weight": 3 },
+      { "item": "raw_meat", "weight": 1 }
+    ] }
   }
 }

@@ -15,6 +15,8 @@ const SkillsComponentScript := preload("res://game/systems/skills/skills_compone
 const QuestComponentScript := preload("res://game/systems/quests/quest_component.gd")
 const DialogueComponentScript := preload("res://game/systems/social/dialogue_component.gd")
 const StoryComponentScript := preload("res://game/systems/story/story_component.gd")
+const CombatComponentScript := preload("res://game/systems/wildlife/combat_component.gd")
+const WildlifeEntityScript := preload("res://game/entities/wildlife_entity.gd")
 const NpcEntityScript := preload("res://game/entities/npc_entity.gd")
 const NoteEntityScript := preload("res://game/entities/note_entity.gd")
 const PickupScript := preload("res://game/entities/pickup.gd")
@@ -62,6 +64,7 @@ var _pickups: Node2D
 var _nodes: Node2D
 var _npcs: Node2D
 var _note_layer: Node2D
+var _wildlife: Node2D
 var _canvas_modulate: CanvasModulate
 var _current_biome := ""
 var _biome_check_accum := 0.0
@@ -104,6 +107,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		build.toggle()
 	elif event.is_action_pressed("interact"):
 		gathering.interact()
+	elif event.is_action_pressed("attack"):
+		player.combat.attack()
 	elif event.is_action_pressed("deploy_trap"):
 		_deploy_trap()
 	elif event.is_action_pressed("debug_eat"):
@@ -270,6 +275,12 @@ func _spawn_player() -> void:
 	player.add_child(story)
 	player.story = story
 
+	var combat: CombatComponent = CombatComponentScript.new()
+	combat.name = "Combat"
+	combat.setup(player, vitals, inventory)
+	player.add_child(combat)
+	player.combat = combat
+
 	add_child(player)
 
 ## Placeholder survivor sprite: a hooded figure, drawn in code.
@@ -341,6 +352,36 @@ func _spawn_fresh_world() -> void:
 		for _i in int(entry["count"]):
 			var qty := rng.randi_range(int(entry["qty_min"]), int(entry["qty_max"]))
 			_add_pickup(String(entry["item"]), qty, _random_land_position(rng))
+
+	_spawn_wildlife(spawns)
+
+## Seeded wildlife placement, each creature in a biome its def permits. (Live
+## animals aren't persisted — a load respawns the local fauna afresh.)
+func _spawn_wildlife(spawns: Dictionary) -> void:
+	_wildlife = Node2D.new()
+	_wildlife.name = "Wildlife"
+	add_child(_wildlife)
+	var rng := SeededRng.new(int(Balance.data["world_seed"])).stream("wildlife")
+	for entry: Dictionary in spawns.get("wildlife", []):
+		var creature_id := String(entry["creature"])
+		var biomes: Array = GatherDb.wildlife_defs[creature_id].get("biomes", [])
+		for _i in int(entry["count"]):
+			var pos := _random_biome_position(rng, biomes)
+			if pos != Vector2.INF:
+				_wildlife.add_child(WildlifeEntityScript.create(creature_id, pos))
+
+## A random land tile-center inside one of the allowed biomes.
+func _random_biome_position(rng: RandomNumberGenerator, biomes: Array) -> Vector2:
+	for _attempt in 60:
+		var cell := Vector2i(
+			rng.randi_range(-MAP_HALF_WIDTH + 1, MAP_HALF_WIDTH - 2),
+			rng.randi_range(-MAP_HALF_HEIGHT + 1, MAP_HALF_HEIGHT - 2))
+		if not _is_land(cell):
+			continue
+		var pos := Vector2(cell * TILE_SIZE) + Vector2(TILE_SIZE, TILE_SIZE) * 0.5
+		if String(Env.biome_at(pos)["id"]) in biomes:
+			return pos
+	return Vector2.INF
 
 ## The outpost's surviving stations, arranged just south of spawn. (Player-built
 ## and player-placed stations arrive with the building system in M7.)
@@ -954,6 +995,29 @@ func _smoke_test_inventory() -> void:
 	assert(int(reread.get("version", -1)) == SaveService.SAVE_VERSION, "save is versioned")
 	assert(int(float(reread["player"]["vitals"]["calories"])) == 1234, "vitals persist through disk")
 	assert(reread["player"]["quests"]["flags"]["flags"].has("ending_change"), "story flags persist")
+
+	# --- M14: wildlife AI, wounds -> infection -> bandage, and a kill ---
+	# A predator strikes: Condition drops and the wound may infect.
+	vitals.state.condition = 80.0
+	vitals.system.trigger_affliction(vitals.state, "infection")
+	assert("infection" in vitals.state.active_affliction_ids(), "a wound can infect")
+	# Bandage cleans it.
+	inventory.pickup("bandage", 1)
+	for i in inventory.inventory.slots.size():
+		var st: Inventory.Stack = inventory.inventory.slots[i]
+		if st != null and st.item_id == "bandage":
+			inventory.use_slot(i)
+			break
+	print("[smoke] after bandage, infection active: %s" % ("infection" in vitals.state.active_affliction_ids()))
+	assert(not "infection" in vitals.state.active_affliction_ids(), "a bandage cures infection")
+	# Hunting: a marsh elk dies and drops meat/hide; the kill rewards survival.
+	var elk := WildlifeEntityScript.create("marsh_elk", player.global_position + Vector2(20, 0))
+	_wildlife.add_child(elk)
+	var survival_xp_before := skills.system.xp("survival")
+	elk.take_damage(999.0, player.global_position)
+	print("[smoke] elk killed -> survival xp %d -> %d" % [
+			survival_xp_before, skills.system.xp("survival")])
+	assert(skills.system.xp("survival") > survival_xp_before, "killing wildlife grants survival XP")
 
 ## Smoke helper: visible index of the current dialogue choice starting with a
 ## prefix, or -1 if none is available.

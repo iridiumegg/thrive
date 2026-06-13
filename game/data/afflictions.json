@@ -30,5 +30,13 @@
     "trigger": { "stat": "energy", "below": 0.5, "sustained_minutes": 30 },
     "effects": { "condition_drain_per_hour": 0.0, "speed_multiplier": 0.75 },
     "cure": { "stat": "energy", "above": 50.0, "sustained_minutes": 0 }
+  },
+  {
+    "id": "infection",
+    "name": "Infected Wound",
+    "description": "A wound has festered. It will only worsen until cleaned and bound.",
+    "trigger": { "external": true },
+    "effects": { "condition_drain_per_hour": 5.0, "speed_multiplier": 0.9 },
+    "cure": { "manual": true }
   }
 ]
