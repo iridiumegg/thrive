@@ -1,0 +1,62 @@
+[
+  {
+    "id": "q_taking_stock",
+    "title": "Taking Stock",
+    "type": "main",
+    "description": "The outpost is bare. Gather what the land gives before the cold sets in.",
+    "auto_start": true,
+    "objectives": [
+      { "id": "o_wood", "type": "gather", "target": "wood_log", "count": 2 },
+      { "id": "o_fiber", "type": "gather", "target": "plant_fiber", "count": 3 }
+    ],
+    "rewards": { "xp": { "gathering": 30 }, "flags": ["settled"] }
+  },
+  {
+    "id": "q_first_tools",
+    "title": "Working Hands",
+    "type": "milestone",
+    "description": "Bare hands only go so far. Twist some cordage and lash a proper tool.",
+    "prerequisites": { "quests": ["q_taking_stock"] },
+    "objectives": [
+      { "id": "o_cord", "type": "craft", "target": "cord", "count": 2 },
+      { "id": "o_pick", "type": "craft", "target": "stone_pickaxe", "count": 1 }
+    ],
+    "rewards": { "xp": { "crafting": 40 }, "flags": ["first_tools"] }
+  },
+  {
+    "id": "q_hearth",
+    "title": "A Place to Return To",
+    "type": "milestone",
+    "description": "Warmth and rest are survival. Raise a fire and a bed you can call yours.",
+    "prerequisites": { "quests": ["q_first_tools"] },
+    "objectives": [
+      { "id": "o_fire", "type": "build", "target": "campfire", "count": 1 },
+      { "id": "o_bed", "type": "build", "target": "bed", "count": 1 }
+    ],
+    "rewards": { "xp": { "building": 30 }, "flags": ["hearth_built"] }
+  },
+  {
+    "id": "q_before_frost",
+    "title": "Before the Frost",
+    "type": "main",
+    "description": "The season is turning. Build a lasting fire and weather a few days against the cold.",
+    "prerequisites": { "quests": ["q_hearth"] },
+    "objectives": [
+      { "id": "o_pit", "type": "build", "target": "fire_pit", "count": 1 },
+      { "id": "o_days", "type": "survive_n_days", "count": 2 }
+    ],
+    "rewards": { "xp": { "survival": 60 }, "recipes": [], "flags": ["frost_ready"] }
+  },
+  {
+    "id": "q_the_logs",
+    "title": "The Outpost Logs",
+    "type": "main",
+    "description": "Scattered notes mention the frostmarsh to the cold edge of the map. Toughen up, and go see what they feared.",
+    "prerequisites": { "quests": ["q_before_frost"] },
+    "objectives": [
+      { "id": "o_survive_skill", "type": "reach_skill_level", "target": "survival", "count": 3 },
+      { "id": "o_reach", "type": "discover", "target": "frostmarsh", "count": 1 }
+    ],
+    "rewards": { "xp": { "survival": 80 }, "flags": ["logs_found", "act1_done"] }
+  }
+]

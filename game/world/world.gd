@@ -12,6 +12,7 @@ const InventoryComponentScript := preload("res://game/systems/inventory/inventor
 const GatheringComponentScript := preload("res://game/systems/gathering/gathering_component.gd")
 const CraftingComponentScript := preload("res://game/systems/crafting/crafting_component.gd")
 const SkillsComponentScript := preload("res://game/systems/skills/skills_component.gd")
+const QuestComponentScript := preload("res://game/systems/quests/quest_component.gd")
 const PickupScript := preload("res://game/entities/pickup.gd")
 const ResourceNodeEntityScript := preload("res://game/entities/resource_node_entity.gd")
 const TrapEntityScript := preload("res://game/entities/trap_entity.gd")
@@ -22,6 +23,7 @@ const InventoryScreenScript := preload("res://game/ui/inventory_screen.gd")
 const CraftingScreenScript := preload("res://game/ui/crafting_screen.gd")
 const BuildPaletteScript := preload("res://game/ui/build_palette.gd")
 const StorageScreenScript := preload("res://game/ui/storage_screen.gd")
+const JournalScreenScript := preload("res://game/ui/journal_screen.gd")
 
 const SPAWNS_PATH := "res://game/data/world_spawns.json"
 
@@ -235,6 +237,12 @@ func _spawn_player() -> void:
 	player.skills = skills
 	crafting.skills = skills
 
+	var quests: QuestComponent = QuestComponentScript.new()
+	quests.name = "Quests"
+	quests.setup(inventory, skills, crafting)
+	player.add_child(quests)
+	player.quests = quests
+
 	add_child(player)
 
 ## Placeholder survivor sprite: a hooded figure, drawn in code.
@@ -425,6 +433,11 @@ func _build_hud() -> void:
 	storage_screen.name = "StorageScreen"
 	hud.add_child(storage_screen)
 	storage_screen.bind_pack(inventory.inventory)
+
+	var journal_screen: Control = JournalScreenScript.new()
+	journal_screen.name = "JournalScreen"
+	hud.add_child(journal_screen)
+	journal_screen.bind(player.quests)
 
 	_build_toast(hud)
 	_build_prompt(hud)
@@ -687,6 +700,20 @@ func _smoke_test_inventory() -> void:
 	print("[smoke] gathering lvl %d -> +%d bonus loot rolls" % [
 			skills.level("gathering"), gathering.skill_bonus_rolls()])
 	assert(gathering.skill_bonus_rolls() >= 1, "gathering skill should grant bonus rolls")
+
+	# --- M9: the first quest auto-starts; events drive it to completion ---
+	var quests := player.quests
+	quests._refresh_activation()  # real play does this deferred once the HUD is up
+	print("[smoke] active quests at start: %s" % str(quests.system.active_ids()))
+	assert(quests.system.is_active("q_taking_stock"), "the opening quest auto-starts")
+	# Satisfy its objectives: gather 2 wood logs + 3 fiber (via pickups).
+	inventory.pickup("wood_log", 2)
+	inventory.pickup("plant_fiber", 3)
+	print("[smoke] q_taking_stock status: %s; next active: %s" % [
+			quests.system.status("q_taking_stock"), str(quests.system.active_ids())])
+	assert(quests.system.is_completed("q_taking_stock"), "gathering completes the opener")
+	assert(quests.flags.has_flag("settled"), "completion sets the reward flag")
+	assert(quests.system.is_active("q_first_tools"), "next quest in the chain auto-activates")
 
 func _on_smoke_minute(minutes: int) -> void:
 	_smoke_minutes += minutes

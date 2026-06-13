@@ -94,3 +94,15 @@ signal skill_xp_gained(skill_id: String, amount: int)
 
 ## Emitted when a skill reaches a new level.
 signal skill_leveled(skill_id: String, level: int)
+
+## --- Quests (Milestone 9) ---
+
+## Emitted when a quest becomes active / is completed.
+signal quest_activated(quest_id: String)
+signal quest_completed(quest_id: String)
+
+## Emitted when any active quest's objective progress changes (for the journal).
+signal quest_progress_changed
+
+## Emitted when a story flag is set (narrative state hook for M11).
+signal flag_set(flag: String)

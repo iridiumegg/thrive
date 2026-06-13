@@ -23,6 +23,7 @@ godot --path .
 | Tab / I | Open / close the inventory & equipment screen |
 | C | Open / close the crafting screen |
 | B | Build mode (place stations, heat, shelter, storage, beds) |
+| J | Open / close the quest journal |
 | Left-click slot | Use food / equip gear / read a blueprint |
 | Right-click slot | Drop one |
 | F1 | Eat (debug quick-restore) |
@@ -122,7 +123,13 @@ Afflictions (hypothermia, starvation, dehydration, exhaustion) are defined in
       and switches on crafted quality tiers (Crude→Masterwork) that scale tool
       durability and bonus output. Soft tech tree = tool tiers + stations +
       skills + blueprints.
-- [ ] M9 — Quests
+- [x] **M9 — Quests:** data-driven quest engine (locked→active→completed) with
+      objective tracking driven by gameplay events (gather/craft/build/
+      survive-days/reach-skill/discover); prerequisite-chained activation that
+      advances the story automatically; story-flag store (foundation for M11);
+      reward grants (items/xp/recipes/flags); a five-quest tutorial arc and a
+      journal with an always-on tracker.
+- [ ] M10 — NPCs & dialogue
 - [ ] M10 — NPCs & dialogue
 - [ ] M11 — Story
 - [ ] M12 — Save/load

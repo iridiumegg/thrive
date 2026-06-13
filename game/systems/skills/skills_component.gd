@@ -53,6 +53,10 @@ func _on_structure_built(_buildable_id: String) -> void:
 func _on_day_advanced(_day: int) -> void:
 	_award("survival", int(_cfg["survive_day_xp"]))
 
+## Public XP award (used by quest rewards).
+func award(skill_id: String, amount: int) -> void:
+	_award(skill_id, amount)
+
 func _award(skill_id: String, amount: int) -> void:
 	var result := system.add_xp(skill_id, amount)
 	EventBus.skill_xp_gained.emit(skill_id, amount)
