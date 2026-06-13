@@ -17,9 +17,12 @@ godot --path .
 
 | Input | Action |
 |-------|--------|
-| WASD / arrows | Move |
-| F1 | Eat (debug, until food items exist) |
-| F2 | Drink (debug) |
+| WASD / arrows | Move (walk over items to pick them up) |
+| Tab / I | Open / close the inventory & equipment screen |
+| Left-click slot | Use food / equip gear |
+| Right-click slot | Drop one |
+| F1 | Eat (debug quick-restore) |
+| F2 | Drink (debug quick-restore) |
 | F3 | Toggle sleep (time accelerates while asleep) |
 | F4 | Toggle campfire warmth (debug, until placeable fires exist) |
 | F5 | Cycle simulation speed ×1 / ×8 / ×32 |
@@ -63,7 +66,7 @@ godot --headless --path . -- --smoke-test
   /systems     # vitals simulation (pure logic) + engine-side adapter
   /world       # main scene, terrain generation
   /ui          # debug HUD, vitals HUD
-  /data        # balance.json, afflictions.json (all tunables live here)
+  /data        # balance.json, afflictions.json, items.json, world_spawns.json
   /assets      # (empty — current art is generated in code; see ASSETS_LICENSES.md)
 /tests         # headless unit tests for the simulation layer
 ```
@@ -84,7 +87,9 @@ Afflictions (hypothermia, starvation, dehydration, exhaustion) are defined in
       time/clock, player movement on a tilemap, debug HUD
 - [x] **M2 — Vitals core:** four needs + Condition + warmth model +
       data-driven afflictions, unit-tested, HUD meters with mood text
-- [ ] M3 — Inventory & items
+- [x] **M3 — Inventory & items:** weight-based grid inventory, data-driven
+      item defs, world pickups (seeded placement), equipment slots feeding
+      the warmth model, encumbrance, eat/drink/equip/drop, inventory UI
 - [ ] M4 — Gathering & tools
 - [ ] M5 — Crafting
 - [ ] M6 — World depth (seasons/weather/biomes; handcrafted core map)

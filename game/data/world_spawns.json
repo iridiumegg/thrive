@@ -1,0 +1,18 @@
+{
+  "near_spawn_kit": [
+    "knit_cap",
+    "padded_jacket",
+    "work_gloves",
+    "lined_boots",
+    "stone_axe",
+    "waterskin_full"
+  ],
+  "scatter": [
+    { "item": "wild_berries", "count": 18, "qty_min": 1, "qty_max": 3 },
+    { "item": "branch", "count": 14, "qty_min": 1, "qty_max": 2 },
+    { "item": "stone", "count": 10, "qty_min": 1, "qty_max": 2 },
+    { "item": "flint_stone", "count": 8, "qty_min": 1, "qty_max": 1 },
+    { "item": "plant_fiber", "count": 8, "qty_min": 1, "qty_max": 3 },
+    { "item": "waterskin_full", "count": 3, "qty_min": 1, "qty_max": 1 }
+  ]
+}

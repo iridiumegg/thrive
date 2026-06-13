@@ -51,14 +51,20 @@ func _build_env() -> Dictionary:
 	var vitals_cfg: Dictionary = Balance.data["vitals"]
 	var climate: Dictionary = Balance.data["climate"]
 	var moving := not asleep and _player != null and _player.velocity.length_squared() > 1.0
+	var insulation := 0.0
+	var encumbrance_activity := 1.0
+	if _player != null:
+		insulation = _player.insulation_c()
+		encumbrance_activity = float(_player.encumbrance()["activity_mult"])
+	var base_activity := float(vitals_cfg["activity_multiplier_moving"]) if moving \
+			else float(vitals_cfg["activity_multiplier_idle"])
 	return {
 		"ambient_c": ambient_c(),
-		"insulation_c": float(Balance.data["player"]["starting_insulation_c"]),
+		"insulation_c": insulation,
 		"heat_source_c": float(climate["campfire_bonus_c"]) if campfire_on else 0.0,
 		"wind_chill_c": 0.0,
 		"wetness": 0.0,
-		"activity": float(vitals_cfg["activity_multiplier_moving"]) if moving \
-				else float(vitals_cfg["activity_multiplier_idle"]),
+		"activity": base_activity * encumbrance_activity,
 		"asleep": asleep,
 	}
 

@@ -9,7 +9,14 @@
   },
   "player": {
     "walk_speed": 90.0,
-    "starting_insulation_c": 8.0
+    "base_insulation_c": 2.0
+  },
+  "inventory": {
+    "grid_slots": 24,
+    "weight_capacity": 40.0,
+    "heavy_threshold_fraction": 0.75,
+    "encumbered_speed_min": 0.5,
+    "encumbered_activity_max": 2.0
   },
   "vitals": {
     "calories_max": 2500.0,

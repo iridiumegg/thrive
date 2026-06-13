@@ -1,0 +1,134 @@
+[
+  {
+    "id": "branch",
+    "name": "Branch",
+    "category": "material",
+    "stack_size": 20,
+    "weight": 0.5,
+    "value": 1,
+    "tags": ["wood", "flammable"],
+    "description": "A dry, arm-length branch. Fuel, or the start of a tool."
+  },
+  {
+    "id": "stone",
+    "name": "Stone",
+    "category": "material",
+    "stack_size": 30,
+    "weight": 0.8,
+    "value": 1,
+    "tags": ["stone"],
+    "description": "Fist-sized and reassuringly solid."
+  },
+  {
+    "id": "flint_stone",
+    "name": "Flint",
+    "category": "material",
+    "stack_size": 20,
+    "weight": 0.3,
+    "value": 3,
+    "tags": ["stone", "sparking"],
+    "description": "Strikes a hot spark off steel — or a sharp edge off itself."
+  },
+  {
+    "id": "plant_fiber",
+    "name": "Plant Fiber",
+    "category": "material",
+    "stack_size": 40,
+    "weight": 0.1,
+    "value": 1,
+    "tags": ["fiber", "flammable"],
+    "description": "Tough stalks that twist into serviceable cordage."
+  },
+  {
+    "id": "wild_berries",
+    "name": "Wild Berries",
+    "category": "food",
+    "stack_size": 20,
+    "weight": 0.1,
+    "value": 2,
+    "tags": ["edible", "plant"],
+    "food": { "kcal": 90, "hydration_pct": 4 },
+    "description": "Tart, dusky berries. A handful keeps you moving."
+  },
+  {
+    "id": "waterskin_full",
+    "name": "Waterskin (full)",
+    "category": "food",
+    "stack_size": 1,
+    "weight": 1.2,
+    "value": 6,
+    "tags": ["drinkable"],
+    "food": { "kcal": 0, "hydration_pct": 45, "container_becomes": "waterskin_empty" },
+    "description": "Cool water, tightly stoppered. Worth more than coin out here."
+  },
+  {
+    "id": "waterskin_empty",
+    "name": "Waterskin (empty)",
+    "category": "container",
+    "stack_size": 2,
+    "weight": 0.3,
+    "value": 4,
+    "tags": ["container"],
+    "description": "A limp leather skin, waiting for a clean source."
+  },
+  {
+    "id": "knit_cap",
+    "name": "Knit Cap",
+    "category": "clothing",
+    "stack_size": 1,
+    "weight": 0.2,
+    "value": 5,
+    "tags": ["clothing"],
+    "equip_slot": "head",
+    "insulation_c": 2.0,
+    "description": "Coarse wool, unraveling at one edge. Keeps your ears."
+  },
+  {
+    "id": "padded_jacket",
+    "name": "Padded Jacket",
+    "category": "clothing",
+    "stack_size": 1,
+    "weight": 1.8,
+    "value": 14,
+    "tags": ["clothing"],
+    "equip_slot": "body",
+    "insulation_c": 6.0,
+    "description": "Quilted layers that have outlived at least one owner."
+  },
+  {
+    "id": "work_gloves",
+    "name": "Work Gloves",
+    "category": "clothing",
+    "stack_size": 1,
+    "weight": 0.3,
+    "value": 4,
+    "tags": ["clothing"],
+    "equip_slot": "hands",
+    "insulation_c": 1.0,
+    "description": "Stiff leather palms, soft enough where it counts."
+  },
+  {
+    "id": "lined_boots",
+    "name": "Lined Boots",
+    "category": "clothing",
+    "stack_size": 1,
+    "weight": 0.9,
+    "value": 9,
+    "tags": ["clothing"],
+    "equip_slot": "feet",
+    "insulation_c": 2.0,
+    "description": "Cracked but dry, with a felt lining that still holds warmth."
+  },
+  {
+    "id": "stone_axe",
+    "name": "Stone Axe",
+    "category": "tool",
+    "stack_size": 1,
+    "weight": 1.5,
+    "value": 8,
+    "tags": ["tool:axe"],
+    "equip_slot": "tool",
+    "durability_max": 60,
+    "description": "Flint head, lashed haft. Crude, but trees don't judge."
+  }
+]

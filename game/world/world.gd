@@ -8,8 +8,13 @@ extends Node2D
 
 const PlayerScript := preload("res://game/entities/player.gd")
 const VitalsComponentScript := preload("res://game/systems/vitals/vitals_component.gd")
+const InventoryComponentScript := preload("res://game/systems/inventory/inventory_component.gd")
+const PickupScript := preload("res://game/entities/pickup.gd")
 const DebugHudScript := preload("res://game/ui/debug_hud.gd")
 const VitalsHudScript := preload("res://game/ui/vitals_hud.gd")
+const InventoryScreenScript := preload("res://game/ui/inventory_screen.gd")
+
+const SPAWNS_PATH := "res://game/data/world_spawns.json"
 
 const TILE_SIZE := 16
 const MAP_HALF_WIDTH := 48   # tiles each side of the origin
@@ -29,7 +34,10 @@ const SLEEP_TIME_SCALE := 8.0
 
 var player: Player
 var vitals: VitalsComponent
+var inventory: InventoryComponent
 var death_overlay: CenterContainer
+var _terrain: TileMapLayer
+var _pickups: Node2D
 var _timescale_index := 0
 var _smoke_test := false
 var _smoke_minutes := 0
@@ -40,7 +48,9 @@ func _ready() -> void:
 	_build_terrain()
 	_spawn_player()
 	_build_hud()
+	_spawn_world_items()
 	EventBus.player_died.connect(_on_player_died)
+	EventBus.item_dropped.connect(_on_item_dropped)
 	if "--smoke-test" in OS.get_cmdline_user_args():
 		_start_smoke_test()
 
@@ -67,9 +77,9 @@ func _unhandled_input(event: InputEvent) -> void:
 ## --- World construction ---
 
 func _build_terrain() -> void:
-	var layer := TileMapLayer.new()
-	layer.name = "Terrain"
-	layer.tile_set = _build_tile_set()
+	_terrain = TileMapLayer.new()
+	_terrain.name = "Terrain"
+	_terrain.tile_set = _build_tile_set()
 
 	var noise := FastNoiseLite.new()
 	noise.seed = int(Balance.data["world_seed"])
@@ -84,8 +94,12 @@ func _build_terrain() -> void:
 				terrain = 2   # rock
 			elif n > 0.22:
 				terrain = 1   # dirt
-			layer.set_cell(Vector2i(x, y), 0, Vector2i(terrain, 0))
-	add_child(layer)
+			_terrain.set_cell(Vector2i(x, y), 0, Vector2i(terrain, 0))
+	add_child(_terrain)
+
+## True if a tile cell is land (not water) — used for valid item placement.
+func _is_land(cell: Vector2i) -> bool:
+	return _terrain.get_cell_atlas_coords(cell).x != 3
 
 func _build_tile_set() -> TileSet:
 	var source := TileSetAtlasSource.new()
@@ -137,6 +151,12 @@ func _spawn_player() -> void:
 	player.add_child(vitals)
 	player.vitals = vitals
 
+	inventory = InventoryComponentScript.new()
+	inventory.name = "Inventory"
+	inventory.setup(vitals)
+	player.add_child(inventory)
+	player.inventory = inventory
+
 	add_child(player)
 
 ## Placeholder survivor sprite: a hooded figure, drawn in code.
@@ -159,6 +179,52 @@ func _render_player_sprite() -> Image:
 			image.set_pixel(x, y, cloak_dark)
 	return image
 
+## --- World items ---
+
+## Place the abandoned-outpost starter kit near spawn and scatter the rest of
+## the loot across land tiles. All placement is seeded, so a given world_seed
+## always produces the same layout (spec 0.5: seeded procedural distribution).
+func _spawn_world_items() -> void:
+	_pickups = Node2D.new()
+	_pickups.name = "Pickups"
+	add_child(_pickups)
+
+	var spawns: Dictionary = Balance.load_json(SPAWNS_PATH)
+	var rng := SeededRng.new(int(Balance.data["world_seed"])).stream("world_items")
+
+	# Starter kit: a loose ring of items just around the outpost (origin).
+	var kit: Array = spawns.get("near_spawn_kit", [])
+	for i in kit.size():
+		var angle := TAU * float(i) / float(max(1, kit.size()))
+		var radius := rng.randf_range(40.0, 90.0)
+		var pos := Vector2(cos(angle), sin(angle)) * radius
+		_add_pickup(String(kit[i]), 1, pos)
+
+	# Scattered foraging across the map.
+	for entry: Dictionary in spawns.get("scatter", []):
+		for _i in int(entry["count"]):
+			var qty := rng.randi_range(int(entry["qty_min"]), int(entry["qty_max"]))
+			_add_pickup(String(entry["item"]), qty, _random_land_position(rng))
+
+func _random_land_position(rng: RandomNumberGenerator) -> Vector2:
+	for _attempt in 30:
+		var cell := Vector2i(
+			rng.randi_range(-MAP_HALF_WIDTH + 1, MAP_HALF_WIDTH - 2),
+			rng.randi_range(-MAP_HALF_HEIGHT + 1, MAP_HALF_HEIGHT - 2))
+		if _is_land(cell):
+			return Vector2(cell * TILE_SIZE) + Vector2(TILE_SIZE, TILE_SIZE) * 0.5
+	return Vector2.ZERO
+
+func _add_pickup(item_id: String, qty: int, world_position: Vector2) -> void:
+	if not ItemDb.has(item_id):
+		push_warning("Spawn references unknown item: %s" % item_id)
+		return
+	_pickups.add_child(PickupScript.create(item_id, qty, world_position))
+
+func _on_item_dropped(item_id: String, qty: int) -> void:
+	var offset := Vector2(randf_range(-10.0, 10.0), 12.0)
+	_add_pickup(item_id, qty, player.global_position + offset)
+
 ## --- UI ---
 
 func _build_hud() -> void:
@@ -174,6 +240,13 @@ func _build_hud() -> void:
 	vitals_hud.name = "VitalsHud"
 	hud.add_child(vitals_hud)
 
+	var inventory_screen: Control = InventoryScreenScript.new()
+	inventory_screen.name = "InventoryScreen"
+	hud.add_child(inventory_screen)
+	inventory_screen.bind(inventory)
+
+	_build_toast(hud)
+
 	death_overlay = CenterContainer.new()
 	death_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	death_overlay.visible = false
@@ -183,6 +256,34 @@ func _build_hud() -> void:
 	death_label.add_theme_font_size_override("font_size", 28)
 	death_overlay.add_child(death_label)
 	hud.add_child(death_overlay)
+
+## A transient bottom-center message line fed by EventBus.notice
+## (pickups, "pack full", equip/use feedback).
+func _build_toast(hud: CanvasLayer) -> void:
+	var toast := Label.new()
+	toast.name = "Toast"
+	toast.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	toast.offset_top = -70
+	toast.offset_left = -200
+	toast.offset_right = 200
+	toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	toast.add_theme_font_size_override("font_size", 15)
+	toast.add_theme_color_override("font_color", Color(0.95, 0.96, 0.98))
+	toast.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+	toast.add_theme_constant_override("shadow_offset_x", 1)
+	toast.add_theme_constant_override("shadow_offset_y", 1)
+	toast.modulate.a = 0.0
+	hud.add_child(toast)
+
+	EventBus.notice.connect(func(text: String) -> void:
+		toast.text = text
+		var tween := create_tween()
+		tween.tween_property(toast, "modulate:a", 1.0, 0.15)
+		tween.tween_interval(1.6)
+		tween.tween_property(toast, "modulate:a", 0.0, 0.5))
+	EventBus.item_picked_up.connect(func(item_id: String, qty: int) -> void:
+		EventBus.notice.emit("Picked up %s%s" % [
+				ItemDb.get_def(item_id).name, "  x%d" % qty if qty > 1 else ""]))
 
 func _on_player_died() -> void:
 	death_overlay.visible = true
@@ -196,11 +297,37 @@ func _on_player_died() -> void:
 func _start_smoke_test() -> void:
 	_smoke_test = true
 	Sim.time_scale = 240.0
+	_smoke_test_inventory()
 	EventBus.sim_minute.connect(_on_smoke_minute)
 	EventBus.affliction_started.connect(
 			func(id: String) -> void: print("[smoke] affliction started: %s (day %d, %s)" % [
 					id, Sim.clock.day_index(), Sim.clock.format_time()]))
 	EventBus.player_died.connect(_finish_smoke_test.bind("player died"))
+
+## Exercises the M3 inventory wiring through the real engine-side component:
+## pickup -> equip (insulation should rise) -> eat (calories should rise).
+func _smoke_test_inventory() -> void:
+	var base_insulation := player.insulation_c()
+	inventory.pickup("padded_jacket", 1)
+	# The jacket sits in the last-used slot; find and equip it.
+	for i in inventory.inventory.slots.size():
+		var stack: Inventory.Stack = inventory.inventory.slots[i]
+		if stack != null and stack.item_id == "padded_jacket":
+			inventory.use_slot(i)
+			break
+	var warmed := player.insulation_c()
+	print("[smoke] insulation %.1f -> %.1f after equipping jacket" % [base_insulation, warmed])
+	assert(warmed > base_insulation, "equipping clothing must raise insulation")
+
+	inventory.pickup("wild_berries", 3)
+	vitals.state.calories = 1000.0
+	for i in inventory.inventory.slots.size():
+		var stack: Inventory.Stack = inventory.inventory.slots[i]
+		if stack != null and stack.item_id == "wild_berries":
+			inventory.use_slot(i)
+			break
+	print("[smoke] ate berries -> calories %.0f, weight %.1f kg" % [
+			vitals.state.calories, inventory.inventory.total_weight()])
 
 func _on_smoke_minute(minutes: int) -> void:
 	_smoke_minutes += minutes

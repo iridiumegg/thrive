@@ -25,3 +25,18 @@ signal affliction_ended(id: String)
 
 ## Emitted once when the player's Condition reaches zero.
 signal player_died
+
+## --- Inventory / items (Milestone 3) ---
+
+## Emitted after any change to the player's inventory. Payload is the Inventory.
+signal inventory_changed(inventory: RefCounted)
+
+## Emitted after any change to equipped gear. Payload is the Equipment.
+signal equipment_changed(equipment: RefCounted)
+
+## Emitted when the player picks up / drops an item (for feedback + quests).
+signal item_picked_up(item_id: String, qty: int)
+signal item_dropped(item_id: String, qty: int)
+
+## A transient one-line message for the HUD (e.g. "Pack is full").
+signal notice(text: String)

@@ -10,6 +10,7 @@ static func ensure_actions() -> void:
 	_add_key_action("move_down", [KEY_S, KEY_DOWN])
 	_add_key_action("move_left", [KEY_A, KEY_LEFT])
 	_add_key_action("move_right", [KEY_D, KEY_RIGHT])
+	_add_key_action("toggle_inventory", [KEY_TAB, KEY_I])
 	# Debug actions — stand-ins until the real systems exist.
 	_add_key_action("debug_eat", [KEY_F1])
 	_add_key_action("debug_drink", [KEY_F2])
