@@ -1,0 +1,88 @@
+{
+  "dlg_wend": {
+    "start": "root",
+    "nodes": {
+      "root": {
+        "speaker": "Wend",
+        "text": "You're the one who took the old outpost. Brave or desperate — out here they look the same.",
+        "choices": [
+          { "text": "What is this place?", "goto": "lore" },
+          { "text": "Here, take some berries.", "goto": "gift", "requires": { "items": [ { "item": "wild_berries", "qty": 3 } ] }, "effects": [ { "type": "take_item", "item": "wild_berries", "qty": 3 }, { "type": "relationship", "delta": 8 } ] },
+          { "text": "Anything you can spare?", "goto": "trade" },
+          { "text": "(Leave)", "goto": "end" }
+        ]
+      },
+      "lore": {
+        "speaker": "Wend",
+        "text": "A whole settlement, once. They left in a hurry the winter the cold came early — said the marsh to the north had 'turned'. I stayed. Someone has to remember.",
+        "effects": [ { "type": "set_flag", "flag": "knows_settlement_left" } ],
+        "choices": [ { "text": "What turned?", "goto": "lore2" }, { "text": "(Back)", "goto": "root" } ]
+      },
+      "lore2": {
+        "speaker": "Wend",
+        "text": "Pell knows more than he says. Find him by the stones east. Earn his trust and he might tell you. Or show you.",
+        "effects": [ { "type": "set_flag", "flag": "pointed_to_pell" } ],
+        "choices": [ { "text": "(Back)", "goto": "root" } ]
+      },
+      "gift": {
+        "speaker": "Wend",
+        "text": "Kindness, out here? I won't forget it. Here — a pattern I can't use anymore. Maybe you can.",
+        "effects": [ { "type": "give_item", "item": "garment_pattern", "qty": 1 } ],
+        "choices": [ { "text": "Thank you.", "goto": "root" } ]
+      },
+      "trade": {
+        "speaker": "Wend",
+        "text": "I forage more than I eat. Trade you cooked meat for a waterskin?",
+        "choices": [
+          { "text": "Deal (give full waterskin, get 2 cooked meat).", "goto": "traded", "requires": { "items": [ { "item": "waterskin_full", "qty": 1 } ] }, "effects": [ { "type": "take_item", "item": "waterskin_full", "qty": 1 }, { "type": "give_item", "item": "cooked_meat", "qty": 2 }, { "type": "relationship", "delta": 2 } ] },
+          { "text": "Not now.", "goto": "root" }
+        ]
+      },
+      "traded": {
+        "speaker": "Wend",
+        "text": "Pleasure doing business. Stay warm.",
+        "choices": [ { "text": "(Back)", "goto": "root" } ]
+      }
+    }
+  },
+  "dlg_pell": {
+    "start": "root",
+    "nodes": {
+      "root": {
+        "speaker": "Old Pell",
+        "text": "Hm. Another one. You'll not last the deep cold without iron and sense. I have iron. Sense you bring yourself.",
+        "choices": [
+          { "text": "Why did everyone leave?", "goto": "warn", "requires": { "flags": [ "pointed_to_pell" ] } },
+          { "text": "Trade iron for tools.", "goto": "trade" },
+          { "text": "Teach me your craft.", "goto": "teach", "requires": { "relationship": { "min": 30 } } },
+          { "text": "(Leave)", "goto": "end" }
+        ]
+      },
+      "warn": {
+        "speaker": "Old Pell",
+        "text": "The marsh took the cold and kept it. Things that should sleep through winter don't, up there. The others ran. I stayed to keep the forge lit, in case anyone came back. You came back.",
+        "effects": [ { "type": "set_flag", "flag": "heard_pell_warning" }, { "type": "relationship", "delta": 5 } ],
+        "choices": [ { "text": "I'll see it for myself.", "goto": "root" } ]
+      },
+      "trade": {
+        "speaker": "Old Pell",
+        "text": "Two ingots buys a proper iron axe. Fair, for out here.",
+        "choices": [
+          { "text": "Trade (2 iron ingot -> iron axe).", "goto": "traded", "requires": { "items": [ { "item": "iron_ingot", "qty": 2 } ] }, "effects": [ { "type": "take_item", "item": "iron_ingot", "qty": 2 }, { "type": "give_item", "item": "iron_axe", "qty": 1 }, { "type": "relationship", "delta": 3 } ] },
+          { "text": "Maybe later.", "goto": "root" }
+        ]
+      },
+      "traded": {
+        "speaker": "Old Pell",
+        "text": "Mind the edge. I don't sharpen twice.",
+        "choices": [ { "text": "(Back)", "goto": "root" } ]
+      },
+      "teach": {
+        "speaker": "Old Pell",
+        "text": "You've earned a little trust. Here's how the old tailors lined a coat against the wind. Use it well.",
+        "effects": [ { "type": "teach_recipe", "recipe": "craft_insulated_coat" }, { "type": "set_flag", "flag": "pell_taught" } ],
+        "choices": [ { "text": "Thank you, Pell.", "goto": "root" } ]
+      }
+    }
+  }
+}

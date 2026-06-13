@@ -13,6 +13,8 @@ const GatheringComponentScript := preload("res://game/systems/gathering/gatherin
 const CraftingComponentScript := preload("res://game/systems/crafting/crafting_component.gd")
 const SkillsComponentScript := preload("res://game/systems/skills/skills_component.gd")
 const QuestComponentScript := preload("res://game/systems/quests/quest_component.gd")
+const DialogueComponentScript := preload("res://game/systems/social/dialogue_component.gd")
+const NpcEntityScript := preload("res://game/entities/npc_entity.gd")
 const PickupScript := preload("res://game/entities/pickup.gd")
 const ResourceNodeEntityScript := preload("res://game/entities/resource_node_entity.gd")
 const TrapEntityScript := preload("res://game/entities/trap_entity.gd")
@@ -24,6 +26,7 @@ const CraftingScreenScript := preload("res://game/ui/crafting_screen.gd")
 const BuildPaletteScript := preload("res://game/ui/build_palette.gd")
 const StorageScreenScript := preload("res://game/ui/storage_screen.gd")
 const JournalScreenScript := preload("res://game/ui/journal_screen.gd")
+const DialogueScreenScript := preload("res://game/ui/dialogue_screen.gd")
 
 const SPAWNS_PATH := "res://game/data/world_spawns.json"
 
@@ -243,6 +246,12 @@ func _spawn_player() -> void:
 	player.add_child(quests)
 	player.quests = quests
 
+	var dialogue: DialogueComponent = DialogueComponentScript.new()
+	dialogue.name = "Dialogue"
+	dialogue.setup(inventory, crafting, quests)
+	player.add_child(dialogue)
+	player.dialogue = dialogue
+
 	add_child(player)
 
 ## Placeholder survivor sprite: a hooded figure, drawn in code.
@@ -281,6 +290,7 @@ func _spawn_world_items() -> void:
 	var spawns: Dictionary = Balance.load_json(SPAWNS_PATH)
 	_spawn_nodes(spawns)
 	_spawn_stations()
+	_spawn_npcs()
 	var rng := SeededRng.new(int(Balance.data["world_seed"])).stream("world_items")
 
 	# Starter kit: a loose ring of items just around the outpost (origin).
@@ -319,6 +329,14 @@ func _setup_build() -> void:
 func _spawn_stations() -> void:
 	for entry in STATION_LAYOUT:
 		build.place_prebuilt(entry[0], entry[1])
+
+## The two souls who stayed when the others fled.
+func _spawn_npcs() -> void:
+	var npcs := Node2D.new()
+	npcs.name = "Npcs"
+	add_child(npcs)
+	for npc_id in NpcDb.ordered:
+		npcs.add_child(NpcEntityScript.create(npc_id))
 
 ## Terrain name -> atlas column (matches _build_terrain).
 const TERRAIN_INDEX := {"grass": 0, "dirt": 1, "rock": 2, "water": 3}
@@ -438,6 +456,11 @@ func _build_hud() -> void:
 	journal_screen.name = "JournalScreen"
 	hud.add_child(journal_screen)
 	journal_screen.bind(player.quests)
+
+	var dialogue_screen: Control = DialogueScreenScript.new()
+	dialogue_screen.name = "DialogueScreen"
+	hud.add_child(dialogue_screen)
+	dialogue_screen.bind(player.dialogue)
 
 	_build_toast(hud)
 	_build_prompt(hud)
@@ -714,6 +737,42 @@ func _smoke_test_inventory() -> void:
 	assert(quests.system.is_completed("q_taking_stock"), "gathering completes the opener")
 	assert(quests.flags.has_flag("settled"), "completion sets the reward flag")
 	assert(quests.system.is_active("q_first_tools"), "next quest in the chain auto-activates")
+
+	# --- M10: dialogue runs, gates work, barter & relationships apply ---
+	var dlg := player.dialogue
+	dlg.open("pell")
+	print("[smoke] talking to Pell, relationship %d (%s)" % [
+			dlg.relationships.value("pell"), dlg.relationships.level_name("pell")])
+	assert(dlg.is_talking(), "dialogue opens")
+	# Barter: give 2 iron ingots, receive an iron axe (a gated trade choice).
+	inventory.pickup("iron_ingot", 2)
+	var before_axe := inventory.inventory.count("iron_axe")
+	var before_ingots := inventory.inventory.count("iron_ingot")
+	dlg.open("pell")  # refresh context with the ingots in hand
+	# Walk root -> trade -> execute the barter choice.
+	dlg.choose(_dialogue_choice_index(dlg, "Trade iron"))
+	dlg.choose(_dialogue_choice_index(dlg, "Trade ("))
+	print("[smoke] bartered 2 ingots -> iron axes: %d (had %d), ingots %d -> %d" % [
+			inventory.inventory.count("iron_axe"), before_axe,
+			before_ingots, inventory.inventory.count("iron_ingot")])
+	assert(inventory.inventory.count("iron_axe") == before_axe + 1, "barter delivers the axe")
+	assert(inventory.inventory.count("iron_ingot") == before_ingots - 2, "barter consumes the ingots")
+	# Trust-gated teaching: lift Pell to Trusted, the recipe choice appears.
+	dlg.relationships.add("pell", 60)
+	dlg.open("pell")
+	var teach_idx := _dialogue_choice_index(dlg, "Teach me")
+	print("[smoke] trusted Pell offers teaching: %s" % (teach_idx >= 0))
+	assert(teach_idx >= 0, "trust unlocks the teaching choice")
+	dlg.close()
+
+## Smoke helper: visible index of the current dialogue choice starting with a
+## prefix, or -1 if none is available.
+func _dialogue_choice_index(dlg: DialogueComponent, prefix: String) -> int:
+	var texts := dlg.current_choice_texts()
+	for i in texts.size():
+		if String(texts[i]).begins_with(prefix):
+			return i
+	return -1
 
 func _on_smoke_minute(minutes: int) -> void:
 	_smoke_minutes += minutes

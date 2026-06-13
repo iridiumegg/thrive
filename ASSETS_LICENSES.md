@@ -14,6 +14,7 @@ Acceptable licenses: CC0, CC-BY (with attribution), or original work.
 | Resource node sprites | Generated procedurally at runtime (`game/entities/resource_node_entity.gd`) | Original (this project) | — |
 | Trap sprites | Generated procedurally at runtime (`game/entities/trap_entity.gd`) | Original (this project) | — |
 | Structure sprites | Generated procedurally at runtime (`game/entities/building_entity.gd`) | Original (this project) | — |
+| NPC sprites | Generated procedurally at runtime (`game/entities/npc_entity.gd`) | Original (this project) | — |
 
 No external art, audio, or font assets are currently used. UI text rendering
 uses Godot's built-in default theme font.

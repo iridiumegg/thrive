@@ -14,6 +14,7 @@ var gathering: GatheringComponent
 var crafting: CraftingComponent
 var skills: SkillsComponent
 var quests: QuestComponent
+var dialogue: DialogueComponent
 
 ## Environmental warmth/shelter from nearby built structures (updated by
 ## BuildingEntity proximity). Heat sources sum; any shelter piece counts.

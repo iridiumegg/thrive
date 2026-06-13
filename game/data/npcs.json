@@ -1,0 +1,22 @@
+[
+  {
+    "id": "wend",
+    "name": "Wend",
+    "color": [150, 120, 92],
+    "dialogue": "dlg_wend",
+    "schedule": [
+      { "from": 6, "to": 19, "pos": [70, -30] },
+      { "from": 19, "to": 6, "pos": [10, 64] }
+    ]
+  },
+  {
+    "id": "pell",
+    "name": "Old Pell",
+    "color": [120, 110, 124],
+    "dialogue": "dlg_pell",
+    "schedule": [
+      { "from": 7, "to": 20, "pos": [220, 140] },
+      { "from": 20, "to": 7, "pos": [200, 120] }
+    ]
+  }
+]

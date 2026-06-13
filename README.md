@@ -129,7 +129,12 @@ Afflictions (hypothermia, starvation, dehydration, exhaustion) are defined in
       advances the story automatically; story-flag store (foundation for M11);
       reward grants (items/xp/recipes/flags); a five-quest tutorial arc and a
       journal with an always-on tracker.
-- [ ] M10 — NPCs & dialogue
+- [x] **M10 — NPCs & dialogue:** two original characters (Wend, Old Pell) with
+      time-of-day schedules who walk to their anchors; node-based branching
+      dialogue reading/writing story flags; an original relationship/trust
+      meter (Stranger→Trusted) that gates lines, trades, and teaching;
+      dialogue-driven barter; lore that sets story flags for M11.
+- [ ] M11 — Story
 - [ ] M10 — NPCs & dialogue
 - [ ] M11 — Story
 - [ ] M12 — Save/load

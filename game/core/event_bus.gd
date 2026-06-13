@@ -106,3 +106,13 @@ signal quest_progress_changed
 
 ## Emitted when a story flag is set (narrative state hook for M11).
 signal flag_set(flag: String)
+
+## --- NPCs & dialogue (Milestone 10) ---
+
+## Dialogue lifecycle for the UI. `node`/`choices` describe what to render.
+signal dialogue_started(npc_id: String, npc_name: String)
+signal dialogue_node(speaker: String, text: String, choices: Array)
+signal dialogue_ended
+
+## Emitted when an NPC relationship changes (id + new value + tier name).
+signal relationship_changed(npc_id: String, value: int, tier: String)

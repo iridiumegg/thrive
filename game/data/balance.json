@@ -37,6 +37,17 @@
     "build_xp": 12,
     "survive_day_xp": 30
   },
+  "social": {
+    "relationship_levels": [
+      { "name": "Stranger", "min": 0 },
+      { "name": "Acquaintance", "min": 10 },
+      { "name": "Friend", "min": 30 },
+      { "name": "Trusted", "min": 60 }
+    ],
+    "max_relationship": 100,
+    "greet_bonus_per_day": 1,
+    "npc_speed": 28.0
+  },
   "crafting": {
     "quality_tiers": [
       { "id": "crude",      "name": "Crude",      "min_skill": 0,  "durability_mult": 0.85 },

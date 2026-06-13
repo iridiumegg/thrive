@@ -20,6 +20,7 @@ GatherDb="*res://game/core/gather_db.gd"
 CraftDb="*res://game/core/craft_db.gd"
 BuildDb="*res://game/core/build_db.gd"
 QuestDb="*res://game/core/quest_db.gd"
+NpcDb="*res://game/core/npc_db.gd"
 Sim="*res://game/core/simulation.gd"
 Env="*res://game/core/env.gd"
 
