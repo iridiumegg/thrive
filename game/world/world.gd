@@ -14,7 +14,9 @@ const CraftingComponentScript := preload("res://game/systems/crafting/crafting_c
 const SkillsComponentScript := preload("res://game/systems/skills/skills_component.gd")
 const QuestComponentScript := preload("res://game/systems/quests/quest_component.gd")
 const DialogueComponentScript := preload("res://game/systems/social/dialogue_component.gd")
+const StoryComponentScript := preload("res://game/systems/story/story_component.gd")
 const NpcEntityScript := preload("res://game/entities/npc_entity.gd")
+const NoteEntityScript := preload("res://game/entities/note_entity.gd")
 const PickupScript := preload("res://game/entities/pickup.gd")
 const ResourceNodeEntityScript := preload("res://game/entities/resource_node_entity.gd")
 const TrapEntityScript := preload("res://game/entities/trap_entity.gd")
@@ -27,6 +29,7 @@ const BuildPaletteScript := preload("res://game/ui/build_palette.gd")
 const StorageScreenScript := preload("res://game/ui/storage_screen.gd")
 const JournalScreenScript := preload("res://game/ui/journal_screen.gd")
 const DialogueScreenScript := preload("res://game/ui/dialogue_screen.gd")
+const StoryScreenScript := preload("res://game/ui/story_screen.gd")
 
 const SPAWNS_PATH := "res://game/data/world_spawns.json"
 
@@ -252,6 +255,12 @@ func _spawn_player() -> void:
 	player.add_child(dialogue)
 	player.dialogue = dialogue
 
+	var story: StoryComponent = StoryComponentScript.new()
+	story.name = "Story"
+	story.setup(quests)
+	player.add_child(story)
+	player.story = story
+
 	add_child(player)
 
 ## Placeholder survivor sprite: a hooded figure, drawn in code.
@@ -291,6 +300,7 @@ func _spawn_world_items() -> void:
 	_spawn_nodes(spawns)
 	_spawn_stations()
 	_spawn_npcs()
+	_spawn_notes()
 	var rng := SeededRng.new(int(Balance.data["world_seed"])).stream("world_items")
 
 	# Starter kit: a loose ring of items just around the outpost (origin).
@@ -337,6 +347,14 @@ func _spawn_npcs() -> void:
 	add_child(npcs)
 	for npc_id in NpcDb.ordered:
 		npcs.add_child(NpcEntityScript.create(npc_id))
+
+## Found documents, placed at their authored spots in the world.
+func _spawn_notes() -> void:
+	var notes := Node2D.new()
+	notes.name = "Notes"
+	add_child(notes)
+	for note_id in LoreDb.ordered_notes:
+		notes.add_child(NoteEntityScript.create(note_id))
 
 ## Terrain name -> atlas column (matches _build_terrain).
 const TERRAIN_INDEX := {"grass": 0, "dirt": 1, "rock": 2, "water": 3}
@@ -461,6 +479,11 @@ func _build_hud() -> void:
 	dialogue_screen.name = "DialogueScreen"
 	hud.add_child(dialogue_screen)
 	dialogue_screen.bind(player.dialogue)
+
+	var story_screen: Control = StoryScreenScript.new()
+	story_screen.name = "StoryScreen"
+	hud.add_child(story_screen)
+	story_screen.bind(player.story)
 
 	_build_toast(hud)
 	_build_prompt(hud)
@@ -764,6 +787,27 @@ func _smoke_test_inventory() -> void:
 	print("[smoke] trusted Pell offers teaching: %s" % (teach_idx >= 0))
 	assert(teach_idx >= 0, "trust unlocks the teaching choice")
 	dlg.close()
+
+	# --- M11: documents set flags & feed quests; finale offers endings ---
+	var story := player.story
+	story.read_document("note_ledger")
+	story.read_document("note_letter")
+	story.read_document("note_marsh")
+	print("[smoke] codex now holds %d documents; read_marsh flag: %s" % [
+			story.codex.size(), quests.flags.has_flag("read_marsh")])
+	assert(quests.flags.has_flag("read_marsh"), "reading a note sets its story flag")
+	# Force the chain to the finale and confirm the ending options reflect choices.
+	quests.flags.set_flag("hearth_built")
+	quests.flags.set_flag("heard_pell_warning")
+	var endings := story.available_endings()
+	var ending_ids := endings.map(func(e: Dictionary) -> String: return String(e["id"]))
+	print("[smoke] available endings: %s" % str(ending_ids))
+	assert("leave" in ending_ids and "stay" in ending_ids and "change" in ending_ids,
+			"player's deeds open all three endings")
+	story.choose_ending("change")
+	print("[smoke] chose ending -> ending_change flag: %s, ended: %s" % [
+			quests.flags.has_flag("ending_change"), story.ended])
+	assert(story.ended and quests.flags.has_flag("ending_change"), "choosing an ending ends the run")
 
 ## Smoke helper: visible index of the current dialogue choice starting with a
 ## prefix, or -1 if none is available.

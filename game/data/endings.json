@@ -1,0 +1,20 @@
+[
+  {
+    "id": "leave",
+    "title": "The Long Walk",
+    "requires": [],
+    "body": "You pack what the cold will let you carry and turn your back on the outpost for the last time. The road south is long and the wind is at your shoulder the whole way. You don't look back — looking back is how the others lost the strength to leave.\n\nYou survived. Out here, that was always the only victory on offer.\n\n— THE END —"
+  },
+  {
+    "id": "stay",
+    "title": "Keepers of the Hearth",
+    "requires": ["hearth_built"],
+    "body": "You bank the fire and let the morning find you still here. There is wood to split and a roof to mend and a hundred small reasons to stay one more day, and then another.\n\nThe outpost breathes again — smoke from one chimney where there was none — because you refused to let it die quietly. Whoever comes next will find a light on.\n\n— THE END —"
+  },
+  {
+    "id": "change",
+    "title": "Into the Marsh",
+    "requires": ["heard_pell_warning", "read_marsh"],
+    "body": "You take Pell's old iron and walk north, past the leaning stake and its grey rag, toward whatever it was that kept the cold awake. Someone has to know what the others only ran from.\n\nThe marsh closes cold and quiet behind you. Whatever waits there, it will not find you unprepared — and it will not find you alone in your ignorance any longer.\n\n— THE END —"
+  }
+]

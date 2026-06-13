@@ -6,6 +6,7 @@ extends Control
 var _quests: QuestComponent
 var _active_box: VBoxContainer
 var _done_box: VBoxContainer
+var _lore_box: VBoxContainer
 var _tracker: Label
 
 func _ready() -> void:
@@ -90,6 +91,11 @@ func _build_panel() -> void:
 	_done_box.add_theme_constant_override("separation", 2)
 	box.add_child(_done_box)
 
+	box.add_child(_title("Lore", 16))
+	_lore_box = VBoxContainer.new()
+	_lore_box.add_theme_constant_override("separation", 2)
+	box.add_child(_lore_box)
+
 func _title(text: String, size: int) -> Label:
 	var label := Label.new()
 	label.text = text
@@ -114,6 +120,19 @@ func _refresh() -> void:
 		child.queue_free()
 	for id in _quests.system.completed_ids():
 		_done_box.add_child(_line("✓ " + String(QuestDb.quests[id]["title"]), Color(0.6, 0.78, 0.62)))
+
+	for child in _lore_box.get_children():
+		child.queue_free()
+	var flags := _quests.flags
+	var any_lore := false
+	for note_id in LoreDb.ordered_notes:
+		var note: Dictionary = LoreDb.get_note(note_id)
+		if flags.has_flag(String(note.get("flag", ""))):
+			any_lore = true
+			_lore_box.add_child(_line("• " + String(note["title"]), Color(0.86, 0.82, 0.66)))
+			_lore_box.add_child(_line("   " + String(note["body"]).replace("\n", " "), Color(0.7, 0.7, 0.66)))
+	if not any_lore:
+		_lore_box.add_child(_line("No documents found yet.", Color(0.66, 0.68, 0.7)))
 
 func _quest_block(id: String) -> VBoxContainer:
 	var quest: Dictionary = QuestDb.quests[id]

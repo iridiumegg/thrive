@@ -116,3 +116,17 @@ signal dialogue_ended
 
 ## Emitted when an NPC relationship changes (id + new value + tier name).
 signal relationship_changed(npc_id: String, value: int, tier: String)
+
+## --- Story (Milestone 11) ---
+
+## Emitted when a found document is read (for quests + the lore codex).
+signal document_found(note_id: String)
+
+## Show a document's text in the reader.
+signal document_text(title: String, body: String)
+
+## The finale is reachable; payload is the list of currently available endings.
+signal ending_choices(endings: Array)
+
+## An ending has been chosen — show it and wrap the run.
+signal ending_reached(ending_id: String, title: String, body: String)

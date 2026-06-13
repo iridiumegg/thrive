@@ -134,7 +134,12 @@ Afflictions (hypothermia, starvation, dehydration, exhaustion) are defined in
       dialogue reading/writing story flags; an original relationship/trust
       meter (Stranger→Trusted) that gates lines, trades, and teaching;
       dialogue-driven barter; lore that sets story flags for M11.
-- [ ] M11 — Story
+- [x] **M11 — Story:** original premise delivered through environment and
+      found documents (five readable notes that set story flags and fill a lore
+      codex); the main arc runs to a finale (What They Left Behind → The
+      Outpost's Fate); three branching endings (Leave / Stay / Change) gated by
+      what the player did and learned, with Leave always reachable.
+- [ ] M12 — Save/load
 - [ ] M10 — NPCs & dialogue
 - [ ] M11 — Story
 - [ ] M12 — Save/load

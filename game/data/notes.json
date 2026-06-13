@@ -1,0 +1,37 @@
+[
+  {
+    "id": "note_founder",
+    "title": "Foundation Stone",
+    "flag": "read_founder",
+    "pos": [0, 96],
+    "body": "Chiseled into the stone at the outpost's heart:\n\n\"We built this to outlast us. Maybe it still can. Maybe you will.\""
+  },
+  {
+    "id": "note_ledger",
+    "title": "A Torn Ledger",
+    "flag": "read_ledger",
+    "pos": [-46, 28],
+    "body": "Columns of stores, every number crossed lower than the last. The final entry is hurried:\n\n\"The cold came in the eighth week, not the twelfth. We voted tonight. We go at first light. Forgive us the things we leave.\""
+  },
+  {
+    "id": "note_drawing",
+    "title": "A Child's Drawing",
+    "flag": "read_drawing",
+    "pos": [128, -64],
+    "body": "A crayon sun over stick figures and a square house. On the back, in an adult's careful hand:\n\n\"For when we come back.\""
+  },
+  {
+    "id": "note_letter",
+    "title": "An Unsent Letter",
+    "flag": "read_letter",
+    "pos": [206, 156],
+    "body": "Weighed down by a cold chisel beside the forge:\n\n\"I won't leave the fire to die. If the marsh wakes again, someone should be here to turn the next ones back. Tell them I stayed on purpose. — P\""
+  },
+  {
+    "id": "note_marsh",
+    "title": "A Stake and a Rag",
+    "flag": "read_marsh",
+    "pos": [-430, -330],
+    "body": "A leaning stake at the world's cold edge, a grey rag knotted to it. Words gouged deep:\n\n\"PAST HERE IT DOESN'T SLEEP. TURN BACK.\""
+  }
+]

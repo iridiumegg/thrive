@@ -58,5 +58,29 @@
       { "id": "o_reach", "type": "discover", "target": "frostmarsh", "count": 1 }
     ],
     "rewards": { "xp": { "survival": 80 }, "flags": ["logs_found", "act1_done"] }
+  },
+  {
+    "id": "q_reckoning",
+    "title": "What They Left Behind",
+    "type": "main",
+    "description": "The outpost is full of small, abandoned lives. Read what the others left, and find the warning at the cold edge of the world.",
+    "prerequisites": { "quests": ["q_the_logs"] },
+    "objectives": [
+      { "id": "o_ledger", "type": "discover", "target": "note_ledger", "count": 1 },
+      { "id": "o_letter", "type": "discover", "target": "note_letter", "count": 1 },
+      { "id": "o_warning", "type": "discover", "target": "note_marsh", "count": 1 }
+    ],
+    "rewards": { "xp": { "survival": 60 }, "flags": ["reckoned"] }
+  },
+  {
+    "id": "q_decision",
+    "title": "The Outpost's Fate",
+    "type": "main",
+    "description": "You know enough now. The cold won't decide for you. Choose what becomes of this place — and of you.",
+    "prerequisites": { "quests": ["q_reckoning"] },
+    "objectives": [
+      { "id": "o_decide", "type": "discover", "target": "decision_made", "count": 1, "optional": true }
+    ],
+    "rewards": { "flags": ["fate_decided"] }
   }
 ]

@@ -32,6 +32,8 @@ func _ready() -> void:
 		_record("skill", {"skill": skill, "level": level}))
 	EventBus.biome_entered.connect(func(id: String, _name: String) -> void:
 		_record("discover", {"target": id}))
+	EventBus.document_found.connect(func(note_id: String) -> void:
+		_record("discover", {"target": note_id}))
 	# Activate any quests that start from the off (auto_start / met prereqs).
 	call_deferred("_refresh_activation")
 
