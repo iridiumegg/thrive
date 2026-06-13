@@ -5,3 +5,6 @@
 # Exports
 /build/
 export_presets.cfg
+
+# Screenshot artifacts (from `godot --path . -- --screenshot`)
+_shot_*.png

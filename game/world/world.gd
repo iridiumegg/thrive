@@ -90,6 +90,26 @@ func _ready() -> void:
 	EventBus.day_advanced.connect(_on_day_autosave)
 	if "--smoke-test" in OS.get_cmdline_user_args():
 		_start_smoke_test()
+	elif "--screenshot" in OS.get_cmdline_user_args():
+		_capture_screenshots()
+
+## Dev helper: render the running game to PNGs (used under xvfb in CI/headless
+## boxes so the game can be eyeballed without a display).
+func _capture_screenshots() -> void:
+	Sim.time_scale = 1.0
+	await get_tree().create_timer(0.4).timeout
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(
+			ProjectSettings.globalize_path("res://_shot_day.png"))
+
+	# Jump to night to show the day/night lighting + weather darkening.
+	Sim.clock.total_minutes = Sim.clock.day_index() * Sim.clock.minutes_per_day + 23 * 60
+	Env.weather.current = "snow"
+	await get_tree().create_timer(0.5).timeout
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(
+			ProjectSettings.globalize_path("res://_shot_night.png"))
+	get_tree().quit()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("restart") and not vitals.state.alive:
