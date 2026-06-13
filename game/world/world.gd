@@ -11,6 +11,7 @@ const VitalsComponentScript := preload("res://game/systems/vitals/vitals_compone
 const InventoryComponentScript := preload("res://game/systems/inventory/inventory_component.gd")
 const GatheringComponentScript := preload("res://game/systems/gathering/gathering_component.gd")
 const CraftingComponentScript := preload("res://game/systems/crafting/crafting_component.gd")
+const SkillsComponentScript := preload("res://game/systems/skills/skills_component.gd")
 const PickupScript := preload("res://game/entities/pickup.gd")
 const ResourceNodeEntityScript := preload("res://game/entities/resource_node_entity.gd")
 const TrapEntityScript := preload("res://game/entities/trap_entity.gd")
@@ -226,6 +227,13 @@ func _spawn_player() -> void:
 	player.add_child(crafting)
 	player.crafting = crafting
 	inventory.crafting = crafting
+
+	var skills: SkillsComponent = SkillsComponentScript.new()
+	skills.name = "Skills"
+	skills.setup(crafting)
+	player.add_child(skills)
+	player.skills = skills
+	crafting.skills = skills
 
 	add_child(player)
 
@@ -655,6 +663,30 @@ func _smoke_test_inventory() -> void:
 	inventory.inventory.remove("stone", 5)
 	print("[smoke] stored %d stone in chest -> chest has %d" % [moved, chest.count("stone")])
 	assert(chest.count("stone") == 5, "storage should hold deposited items")
+
+	# --- M8: skills level through use, unlock recipes, and drive quality ---
+	var skills := player.skills
+	print("[smoke] crafting skill starts at level %d" % skills.level("crafting"))
+	# Tailoring coat is gated behind tailoring level 4 — locked at level 1.
+	assert(not crafting.knows("craft_insulated_coat"), "skill-gated recipe locked initially")
+	skills.system.add_xp("tailoring", skills.system.xp_for_level(4))
+	skills._unlock_skill_recipes("tailoring", skills.level("tailoring"))
+	print("[smoke] tailoring -> level %d, knows insulated coat: %s" % [
+			skills.level("tailoring"), crafting.knows("craft_insulated_coat")])
+	assert(crafting.knows("craft_insulated_coat"), "leveling tailoring unlocks the coat")
+
+	# Quality climbs with skill; a masterwork tool starts with bonus durability.
+	skills.system.add_xp("smithing", skills.system.xp_for_level(12))
+	var quality_tier: Dictionary = skills.quality_for_recipe("craft_iron_axe")
+	print("[smoke] smithing lvl %d -> quality '%s' (durability x%.2f)" % [
+			skills.level("smithing"), quality_tier["name"], Quality.durability_mult(quality_tier)])
+	assert(String(quality_tier["id"]) == "masterwork", "high smithing yields masterwork quality")
+
+	# Gathering skill grants bonus loot rolls.
+	skills.system.add_xp("gathering", skills.system.xp_for_level(6))
+	print("[smoke] gathering lvl %d -> +%d bonus loot rolls" % [
+			skills.level("gathering"), gathering.skill_bonus_rolls()])
+	assert(gathering.skill_bonus_rolls() >= 1, "gathering skill should grant bonus rolls")
 
 func _on_smoke_minute(minutes: int) -> void:
 	_smoke_minutes += minutes

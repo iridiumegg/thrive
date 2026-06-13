@@ -15,13 +15,16 @@ var system: CraftingSystem
 var known_recipes: Dictionary = {}      # recipe_id -> true (non-default unlocks)
 var available_stations: Dictionary = {} # station_id -> in-range count
 
+var skills: SkillsComponent             # wired by the player; drives quality
 var _inventory: InventoryComponent
+var _rng := RandomNumberGenerator.new()
 
 func setup(inventory: InventoryComponent) -> void:
 	_inventory = inventory
 
 func _ready() -> void:
 	system = CraftingSystem.new(CraftDb.recipes)
+	_rng.randomize()
 	EventBus.sim_minute.connect(_on_sim_minute)
 
 ## --- Station availability (called by StationEntity) ---
@@ -78,7 +81,11 @@ func craft(recipe_id: String) -> bool:
 	for inp: Dictionary in system.recipe(recipe_id).get("inputs", []):
 		_inventory.inventory.remove(String(inp["item"]), int(inp["qty"]))
 	EventBus.inventory_changed.emit(_inventory.inventory)
-	system.enqueue(recipe_id)
+	# Quality is fixed at craft start from the relevant skill level.
+	var quality_id := "standard"
+	if skills != null:
+		quality_id = String(skills.quality_for_recipe(recipe_id).get("id", "standard"))
+	system.enqueue(recipe_id, quality_id)
 	EventBus.crafting_queue_changed.emit(system.queue)
 	EventBus.notice.emit("Crafting: %s" % _display(recipe_id))
 	return true
@@ -104,10 +111,23 @@ func _on_sim_minute(minutes: int) -> void:
 		EventBus.crafting_queue_changed.emit(system.queue)
 
 func _deliver(recipe_id: String, quality: String) -> void:
+	var tiers: Array = Balance.data["crafting"]["quality_tiers"]
+	var tier := Quality.tier_by_id(tiers, quality)
 	for out: Dictionary in system.recipe(recipe_id).get("outputs", []):
-		_inventory.pickup(String(out["item"]), int(out["qty"]))
+		var item_id := String(out["item"])
+		var def := ItemDb.get_def(item_id)
+		var qty := int(out["qty"])
+		# Fine/masterwork quality can yield a bonus unit of stackable goods.
+		if def.stack_size > 1 and _rng.randf() < Quality.bonus_output_chance(tier):
+			qty += 1
+		_inventory.pickup(item_id, qty)
+		# For tools, quality scales the starting durability (stored per item id).
+		if def.durability_max > 0:
+			_inventory.tool_durability[item_id] = int(round(
+					def.durability_max * Quality.durability_mult(tier)))
 	EventBus.recipe_crafted.emit(recipe_id, quality)
-	EventBus.notice.emit("Finished: %s" % _display(recipe_id))
+	var quality_label := String(tier.get("name", "")) + " " if quality != "standard" else ""
+	EventBus.notice.emit("Finished: %s%s" % [quality_label, _display(recipe_id)])
 
 ## --- Repair & salvage (operate on items, not recipes) ---
 

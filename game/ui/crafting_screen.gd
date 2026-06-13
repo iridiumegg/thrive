@@ -208,6 +208,14 @@ func _refresh_detail() -> void:
 			CraftDb.station_name(String(recipe.get("station", "hand"))),
 			int(recipe.get("craft_time", 0))]))
 
+	# Skill + the quality this craft would currently produce.
+	if _crafting.skills != null:
+		var skill_id := _crafting.skills.skill_for_recipe(_selected_recipe)
+		var tier: Dictionary = _crafting.skills.quality_for_recipe(_selected_recipe)
+		_detail.add_child(_muted_label("Skill: %s lvl %d    Quality: %s" % [
+				skill_id.capitalize(), _crafting.skills.level(skill_id),
+				tier.get("name", "Standard")]))
+
 	_detail.add_child(_muted_label("Needs:"))
 	for inp: Dictionary in recipe.get("inputs", []):
 		var item_id := String(inp["item"])

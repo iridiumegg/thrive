@@ -86,3 +86,11 @@ signal storage_opened(container: RefCounted)
 
 ## Request to sleep through to morning (from a bed).
 signal sleep_requested
+
+## --- Skills & progression (Milestone 8) ---
+
+## Emitted when a skill gains XP (level may or may not have changed).
+signal skill_xp_gained(skill_id: String, amount: int)
+
+## Emitted when a skill reaches a new level.
+signal skill_leveled(skill_id: String, level: int)

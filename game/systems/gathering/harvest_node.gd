@@ -35,13 +35,14 @@ func can_harvest(tool_tier: int) -> bool:
 	return not is_depleted() and tool_tier >= required_tier()
 
 ## Perform one harvest, returning the loot { item_id: qty }. Returns {} if the
-## node can't currently be harvested. Depletes the node when the last harvest is
-## taken, starting the respawn timer.
-func harvest(tool_tier: int) -> Dictionary:
+## node can't currently be harvested. `extra_bonus` adds loot rolls on top of
+## the tool-tier bonus (e.g. from the gathering skill). Depletes the node when
+## the last harvest is taken, starting the respawn timer.
+func harvest(tool_tier: int, extra_bonus: int = 0) -> Dictionary:
 	if not can_harvest(tool_tier):
 		return {}
 	harvests_remaining -= 1
-	var bonus := maxi(0, tool_tier - required_tier())
+	var bonus := maxi(0, tool_tier - required_tier()) + maxi(0, extra_bonus)
 	var loot := LootTable.roll(_loot_table, _rng, bonus)
 	if is_depleted():
 		respawn_remaining = int(def.get("respawn_minutes", 0))

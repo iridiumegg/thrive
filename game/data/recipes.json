@@ -147,5 +147,20 @@
     "craft_time": 18,
     "xp": 9,
     "unlock": { "type": "blueprint" }
+  },
+  {
+    "id": "craft_insulated_coat",
+    "display_name": "Tailor an Insulated Coat",
+    "category": "Tailoring",
+    "station": "tailoring_bench",
+    "inputs": [
+      { "item": "small_hide", "qty": 4 },
+      { "item": "cord", "qty": 4 },
+      { "item": "plant_fiber", "qty": 4 }
+    ],
+    "outputs": [ { "item": "insulated_coat", "qty": 1 } ],
+    "craft_time": 30,
+    "xp": 16,
+    "unlock": { "type": "skill", "skill": "tailoring", "level": 4 }
   }
 ]

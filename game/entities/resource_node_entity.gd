@@ -79,7 +79,7 @@ func interact(gathering: GatheringComponent) -> void:
 		EventBus.notice.emit("You need a %s (tier %d) for that" % [
 				tag.capitalize(), harvest_node.required_tier()])
 		return
-	var loot := harvest_node.harvest(tier)
+	var loot := harvest_node.harvest(tier, gathering.skill_bonus_rolls())
 	gathering.collect_loot(loot)
 	if tag != "":
 		gathering.damage_tool()

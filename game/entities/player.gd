@@ -12,6 +12,7 @@ var vitals: VitalsComponent
 var inventory: InventoryComponent
 var gathering: GatheringComponent
 var crafting: CraftingComponent
+var skills: SkillsComponent
 
 ## Environmental warmth/shelter from nearby built structures (updated by
 ## BuildingEntity proximity). Heat sources sum; any shelter piece counts.

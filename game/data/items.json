@@ -298,6 +298,19 @@
     "description": "Stitched hides, heavy and wind-tight. Worth every snare."
   },
   {
+    "id": "insulated_coat",
+    "name": "Insulated Coat",
+    "category": "clothing",
+    "stack_size": 1,
+    "weight": 2.8,
+    "value": 40,
+    "tags": ["clothing"],
+    "equip_slot": "body",
+    "insulation_c": 12.0,
+    "salvage": [ { "item": "small_hide", "qty": 2 } ],
+    "description": "Layered hide and fiber, cut to seal in every scrap of heat. Master tailoring."
+  },
+  {
     "id": "garment_pattern",
     "name": "Worn Garment Pattern",
     "category": "material",

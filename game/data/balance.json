@@ -19,7 +19,31 @@
     "encumbered_activity_max": 2.0
   },
   "gathering": {
-    "harvest_energy_cost": 1.5
+    "harvest_energy_cost": 1.5,
+    "xp_per_harvest": 4
+  },
+  "skills": {
+    "lines": ["gathering", "crafting", "smithing", "cooking", "tailoring", "building", "survival"],
+    "category_skill": {
+      "Tools": "crafting",
+      "Materials": "crafting",
+      "Smithing": "smithing",
+      "Cooking": "cooking",
+      "Tailoring": "tailoring"
+    },
+    "xp_curve_base": 50,
+    "xp_curve_exp": 1.6,
+    "max_level": 20,
+    "build_xp": 12,
+    "survive_day_xp": 30
+  },
+  "crafting": {
+    "quality_tiers": [
+      { "id": "crude",      "name": "Crude",      "min_skill": 0,  "durability_mult": 0.85 },
+      { "id": "standard",   "name": "Standard",   "min_skill": 3,  "durability_mult": 1.0 },
+      { "id": "fine",       "name": "Fine",       "min_skill": 7,  "durability_mult": 1.25, "bonus_output_chance": 0.5 },
+      { "id": "masterwork", "name": "Masterwork", "min_skill": 12, "durability_mult": 1.5,  "bonus_output_chance": 1.0 }
+    ]
   },
   "vitals": {
     "calories_max": 2500.0,

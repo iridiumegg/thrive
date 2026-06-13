@@ -116,7 +116,12 @@ Afflictions (hypothermia, starvation, dehydration, exhaustion) are defined in
       sources, shelter, storage chests, and beds; shelter + heat cancel wind
       chill/wetness; beds sleep through to morning; storage transfer UI. The
       outpost's stations are now these placeables.
-- [ ] M8 — Skills & progression
+- [x] **M8 — Skills & progression:** seven skill lines that level through use
+      (gathering, crafting, smithing, cooking, tailoring, building, survival);
+      leveling unlocks skill-gated recipes, grants gathering bonus loot rolls,
+      and switches on crafted quality tiers (Crude→Masterwork) that scale tool
+      durability and bonus output. Soft tech tree = tool tiers + stations +
+      skills + blueprints.
 - [ ] M9 — Quests
 - [ ] M10 — NPCs & dialogue
 - [ ] M11 — Story

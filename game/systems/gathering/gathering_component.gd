@@ -45,6 +45,13 @@ func interact() -> void:
 
 ## --- Helpers used by the entities ---
 
+## Extra loot rolls granted by the gathering skill (one per 5 levels).
+func skill_bonus_rolls() -> int:
+	if _player != null and _player.skills != null:
+		@warning_ignore("integer_division")
+		return _player.skills.level("gathering") / 5
+	return 0
+
 ## Tier of the equipped tool for a required tag (0 = bare hands / no match).
 func tool_tier_for(tag: String) -> int:
 	if tag == "":
